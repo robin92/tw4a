@@ -1,24 +1,26 @@
 package pl.rbolanowski.tw4a.frameworks;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import java.util.List;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.exceptions.misusing.NullInsteadOfMockException;
+
 import pl.rbolanowski.tw4a.test.AndroidMockitoTestCase;
 
 import static org.mockito.Mockito.*;
 
+@RunWith(AndroidJUnit4.class)
 public class MockitoTest extends AndroidMockitoTestCase {
 
-    public void testVerifyHandlesNullMock() throws Exception {
-        boolean catched = false;
-        try {
-            verify(null);
-        }
-        catch (NullInsteadOfMockException e) { catched = true; }
-        assertTrue(catched);
+    @Test(expected = NullInsteadOfMockException.class)
+    public void verifyHandlesNullMock() throws Exception {
+        verify(null);
     }
 
-    public void testVerifyMockCalls() throws Exception {
+    @Test public void verifyMockCalls() throws Exception {
         List mockedList = mock(List.class);
 
         mockedList.add("hello world");
@@ -30,7 +32,7 @@ public class MockitoTest extends AndroidMockitoTestCase {
         verify(mockedList).clear();
     }
 
-    public void testStubMethods() throws Exception {
+    @Test public void stubMethods() throws Exception {
         List mockedList = mock(List.class);
         when(mockedList.toString()).thenReturn("hello world");
         assertEquals("hello world", mockedList.toString());
