@@ -1,14 +1,15 @@
-package pl.rbolanowski.tw4a;
+package pl.rbolanowski.tw4a.backend;
 
 import android.test.MoreAsserts;
 import android.test.mock.MockContext;
 import java.io.*;
 
+import pl.rbolanowski.tw4a.StreamUtil;
 import pl.rbolanowski.tw4a.test.AndroidMockitoTestCase;
 
 import static org.mockito.Mockito.*;
 
-public class BackendConfiguratorTest extends AndroidMockitoTestCase {
+public class NativeBinaryBackendConfiguratorTest extends AndroidMockitoTestCase {
 
     private static final String BINARY_CONTENT = "hello world";
 
@@ -48,7 +49,7 @@ public class BackendConfiguratorTest extends AndroidMockitoTestCase {
 
     private void setUpConfigurator() {
         assertNotNull(mContext, mProvider);
-        mConfigurator = new BackendConfiguratorImpl(mContext, mProvider);
+        mConfigurator = new NativeBinaryBackendConfigurator(mContext, mProvider);
     }
 
     private static void assertThrowsBackendException(ThrowingRunnable runnable) throws Exception {
