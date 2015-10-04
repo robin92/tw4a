@@ -3,10 +3,7 @@ package pl.rbolanowski.tw4a;
 import android.test.MoreAsserts;
 import android.test.mock.MockContext;
 import java.io.*;
-import java.io.File;
-import java.io.FileInputStream;
 
-import pl.rbolanowski.tw4a.BackendConfigurator;
 import pl.rbolanowski.tw4a.test.AndroidMockitoTestCase;
 
 import static org.mockito.Mockito.*;
@@ -20,6 +17,10 @@ public class BackendConfiguratorTest extends AndroidMockitoTestCase {
     private File mFile;
     private BackendConfigurator mConfigurator;
     private StreamUtil mStreams = new StreamUtil();
+
+    private InputStream mResourceInput;
+    private FileOutputStream mResourceOutput;
+    private File mOutputFile;
 
     @Override
     protected void setUp() throws Exception {
@@ -76,21 +77,21 @@ public class BackendConfiguratorTest extends AndroidMockitoTestCase {
     }
 
     public void testDownloadsBackendBinary() throws Exception {
+        configureResources();
+
         when(mFile.exists()).thenReturn(false);
-
-        InputStream inputStream = new ByteArrayInputStream(BINARY_CONTENT.getBytes());
-        when(mProvider.getInputStream()).thenReturn(inputStream);
-
-        File tempFile = File.createTempFile("tw4aTest", ".txt");
-        tempFile.deleteOnExit();
-        FileOutputStream outputStream = new FileOutputStream(tempFile);
-        when(mContext.openFileOutput(anyString(), anyInt())).thenReturn(outputStream);
-
+        when(mProvider.getInputStream()).thenReturn(mResourceInput);
+        when(mContext.openFileOutput(anyString(), anyInt())).thenReturn(mResourceOutput);
         mConfigurator.configure();
-        verify(mProvider).getInputStream();
-        verify(mContext).openFileOutput("task", MockContext.MODE_PRIVATE);
 
-        MoreAsserts.assertEquals(BINARY_CONTENT.getBytes(), readFile(tempFile));
+        MoreAsserts.assertEquals(BINARY_CONTENT.getBytes(), readFile(mOutputFile));
+    }
+
+    private void configureResources() throws Exception {
+        mOutputFile = File.createTempFile("tw4aTest", ".txt");
+        mOutputFile.deleteOnExit();
+        mResourceInput = new ByteArrayInputStream(BINARY_CONTENT.getBytes());
+        mResourceOutput = new FileOutputStream(mOutputFile);
     }
 
     public void testSkipsDownloadingWhenBackendAlreadyThere() throws Exception {
