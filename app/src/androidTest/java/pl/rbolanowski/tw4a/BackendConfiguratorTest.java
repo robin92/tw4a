@@ -30,6 +30,11 @@ public class BackendConfiguratorTest extends AndroidMockitoTestCase {
         setUpConfigurator();
     }
 
+    private static void verifyIsExecutable(File file) {
+        verify(file).setExecutable(true);
+        verify(file, never()).setExecutable(false);
+    }
+
     private void setUpContext() {
         mContext = mock(MockContext.class);
         mFile = mock(File.class);
@@ -84,6 +89,7 @@ public class BackendConfiguratorTest extends AndroidMockitoTestCase {
         when(mContext.openFileOutput(anyString(), anyInt())).thenReturn(mResourceOutput);
         mConfigurator.configure();
 
+        verifyIsExecutable(mFile);
         MoreAsserts.assertEquals(BINARY_CONTENT.getBytes(), readFile(mOutputFile));
     }
 
@@ -98,6 +104,7 @@ public class BackendConfiguratorTest extends AndroidMockitoTestCase {
         when(mFile.exists()).thenReturn(true);
         mConfigurator.configure();
         verifyZeroInteractions(mProvider);
+        verifyIsExecutable(mFile);
     }
 
     private byte[] readFile(File file) throws IOException {

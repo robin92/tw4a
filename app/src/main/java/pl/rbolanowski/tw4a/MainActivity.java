@@ -56,6 +56,8 @@ class BackendConfiguratorImpl implements BackendConfigurator {
         if (!mTaskFile.exists()) {
             acquireBackend();
         }
+        assert mTaskFile.exists();
+        mTaskFile.setExecutable(true);
     }
 
     private void acquireBackend() throws BackendException {
