@@ -56,18 +56,22 @@ class BackendConfiguratorImpl implements BackendConfigurator {
         try {
             InputStream inputStream = mProvider.getInputStream();
             OutputStream outputStream = mContext.openFileOutput(BACKEND_FILENAME, Context.MODE_PRIVATE);
-            try {
-                mStreams.copy(inputStream, outputStream);
-            } catch (IOException e) {
-                // TODO: error handling
-                throw new RuntimeException(e.toString());
-            } finally {
-                mStreams.close(inputStream);
-                mStreams.close(outputStream);
-            }
+            copy(inputStream, outputStream);
         }
         catch (IOException e) {
             throw new BackendDownloadException();
+        }
+    }
+
+    private void copy(InputStream inputStream, OutputStream outputStream) throws IOException {
+        try {
+            mStreams.copy(inputStream, outputStream);
+        } catch (IOException e) {
+            // TODO: error handling
+            throw new RuntimeException(e.toString());
+        } finally {
+            mStreams.close(inputStream);
+            mStreams.close(outputStream);
         }
     }
 

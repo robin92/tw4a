@@ -42,13 +42,27 @@ public class BackendConfiguratorTest extends AndroidMockitoTestCase {
         mConfigurator = new BackendConfiguratorImpl(mContext, mProvider);
     }
 
+    private void assertThrowsBackendException(ThrowingRunnable runnable) throws Exception {
+        assertThrows(BackendConfigurator.BackendException.class, runnable);
+    }
+
     public void testGetsPathToBackendBinary() {
         verify(mContext).getFileStreamPath("task");
     }
 
     public void testDownloadingBackendBinaryFailureHandling() throws Exception {
         when(mProvider.getInputStream()).thenThrow(IOException.class);
-        assertThrows(BackendConfigurator.BackendException.class, new ThrowingRunnable() {
+        assertThrowsBackendException(new ThrowingRunnable() {
+            @Override
+            public void run() throws Exception {
+                mConfigurator.configure();
+            }
+        });
+    }
+
+    public void testOpeningInternalStorageFailureHandling() throws Exception {
+        when(mContext.openFileOutput(anyString(), anyInt())).thenThrow(IOException.class);
+        assertThrowsBackendException(new ThrowingRunnable() {
             @Override
             public void run() throws Exception {
                 mConfigurator.configure();
