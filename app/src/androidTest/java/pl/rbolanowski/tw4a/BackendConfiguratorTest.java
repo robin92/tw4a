@@ -51,7 +51,7 @@ public class BackendConfiguratorTest extends AndroidMockitoTestCase {
         mConfigurator = new BackendConfiguratorImpl(mContext, mProvider);
     }
 
-    private void assertThrowsBackendException(ThrowingRunnable runnable) throws Exception {
+    private static void assertThrowsBackendException(ThrowingRunnable runnable) throws Exception {
         assertThrows(BackendConfigurator.BackendException.class, runnable);
     }
 
