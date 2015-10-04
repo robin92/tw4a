@@ -7,7 +7,7 @@ buildscript {
     }
 }
 
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 'android-19'
@@ -15,6 +15,11 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
+    }
+    defaultConfig {
+        versionCode 1
+        versionName "0.1.0"
+        minSdkVersion 19
     }
 }
 
@@ -29,4 +34,3 @@ dependencies {
     androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
     androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
 }
-
