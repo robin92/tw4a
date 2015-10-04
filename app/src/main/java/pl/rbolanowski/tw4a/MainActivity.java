@@ -22,7 +22,9 @@ public class MainActivity extends Activity {
 
 interface BackendConfigurator {
 
-    public void configure();
+    public static abstract class BackendException extends Exception {}
+
+    public void configure() throws BackendException;
 
 }
 
@@ -36,6 +38,8 @@ class BackendConfiguratorImpl implements BackendConfigurator {
 
     private static final String BACKEND_FILENAME = "task";
 
+    private static class BackendDownloadException extends BackendException {}
+
     private Context mContext;
     private BackendProvider mProvider;
     private File mTaskFile;
@@ -48,7 +52,7 @@ class BackendConfiguratorImpl implements BackendConfigurator {
     }
 
     @Override
-    public void configure() {
+    public void configure() throws BackendException {
         try {
             InputStream inputStream = mProvider.getInputStream();
             OutputStream outputStream = mContext.openFileOutput(BACKEND_FILENAME, Context.MODE_PRIVATE);
@@ -63,8 +67,7 @@ class BackendConfiguratorImpl implements BackendConfigurator {
             }
         }
         catch (IOException e) {
-            // TODO: error handling
-            throw new RuntimeException(e.toString());
+            throw new BackendDownloadException();
         }
     }
 

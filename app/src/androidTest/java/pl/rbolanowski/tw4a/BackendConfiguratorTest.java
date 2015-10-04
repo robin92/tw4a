@@ -3,14 +3,10 @@ package pl.rbolanowski.tw4a;
 import android.test.MoreAsserts;
 import android.test.mock.MockContext;
 import java.io.*;
-import java.io.ByteArrayOutputStream;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
-import java.lang.StringBuilder;
 
-import pl.rbolanowski.tw4a.BackendProvider;
-import pl.rbolanowski.tw4a.StreamUtil;
+import pl.rbolanowski.tw4a.BackendConfigurator;
 import pl.rbolanowski.tw4a.test.AndroidMockitoTestCase;
 
 import static org.mockito.Mockito.*;
@@ -50,6 +46,16 @@ public class BackendConfiguratorTest extends AndroidMockitoTestCase {
         verify(mContext).getFileStreamPath("task");
     }
 
+    public void testDownloadingBackendBinaryFailureHandling() throws Exception {
+        when(mProvider.getInputStream()).thenThrow(IOException.class);
+        assertThrows(BackendConfigurator.BackendException.class, new ThrowingRunnable() {
+            @Override
+            public void run() throws Exception {
+                mConfigurator.configure();
+            }
+        });
+    }
+
     public void testDownloadsBackendBinary() throws Exception {
         InputStream inputStream = new ByteArrayInputStream(BINARY_CONTENT.getBytes());
         when(mProvider.getInputStream()).thenReturn(inputStream);
@@ -71,4 +77,3 @@ public class BackendConfiguratorTest extends AndroidMockitoTestCase {
     }
 
 }
- 
