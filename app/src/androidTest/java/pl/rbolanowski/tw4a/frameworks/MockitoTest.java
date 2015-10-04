@@ -1,8 +1,9 @@
-package pl.rbolanowski.tw4a.test;
+package pl.rbolanowski.tw4a.frameworks;
 
 import java.util.List;
 
 import org.mockito.exceptions.misusing.NullInsteadOfMockException;
+import pl.rbolanowski.tw4a.test.AndroidMockitoTestCase;
 
 import static org.mockito.Mockito.*;
 
