@@ -4,10 +4,13 @@ import android.test.MoreAsserts;
 import android.test.mock.MockContext;
 import java.io.*;
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
+import java.io.File;
 import java.io.FileInputStream;
 import java.lang.StringBuilder;
 
 import pl.rbolanowski.tw4a.BackendProvider;
+import pl.rbolanowski.tw4a.StreamUtil;
 import pl.rbolanowski.tw4a.test.AndroidMockitoTestCase;
 
 import static org.mockito.Mockito.*;
@@ -19,6 +22,7 @@ public class BackendConfiguratorTest extends AndroidMockitoTestCase {
     private MockContext mContext;
     private BackendProvider mProvider;
     private BackendConfigurator mConfigurator;
+    private StreamUtil mStreams = new StreamUtil();
 
     @Override
     protected void setUp() throws Exception {
@@ -32,7 +36,7 @@ public class BackendConfiguratorTest extends AndroidMockitoTestCase {
         mContext = mock(MockContext.class);
     }
 
-    private void setUpProvider() {
+    private void setUpProvider() throws Exception {
         mProvider = mock(BackendProvider.class);
         when(mProvider.getInputStream()).thenReturn(null);
     }
@@ -63,15 +67,7 @@ public class BackendConfiguratorTest extends AndroidMockitoTestCase {
     }
 
     private byte[] readFile(File file) throws IOException {
-        FileInputStream inputStream = new FileInputStream(file);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        int b = 0;
-        while ((b = inputStream.read()) >= 0) {
-            outputStream.write(b);
-        }
-        inputStream.close();
-        outputStream.close();
-        return outputStream.toByteArray();
+        return mStreams.readAndClose(new FileInputStream(file)).toByteArray();
     }
 
 }

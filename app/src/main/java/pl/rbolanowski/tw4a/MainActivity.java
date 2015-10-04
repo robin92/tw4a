@@ -28,7 +28,7 @@ interface BackendConfigurator {
 
 interface BackendProvider {
 
-    public InputStream getInputStream();
+    public InputStream getInputStream() throws IOException;
 
 }
 
@@ -39,6 +39,7 @@ class BackendConfiguratorImpl implements BackendConfigurator {
     private Context mContext;
     private BackendProvider mProvider;
     private File mTaskFile;
+    private StreamUtil mStreams = new StreamUtil();
 
     public BackendConfiguratorImpl(Context context, BackendProvider provider) {
         mContext = context;
@@ -49,24 +50,22 @@ class BackendConfiguratorImpl implements BackendConfigurator {
     @Override
     public void configure() {
         try {
-            ByteArrayOutputStream backendBinary = readStream(mProvider.getInputStream());
-            FileOutputStream outputStream = mContext.openFileOutput(BACKEND_FILENAME, Context.MODE_PRIVATE);
-            backendBinary.writeTo(outputStream);
-            outputStream.close();
+            InputStream inputStream = mProvider.getInputStream();
+            OutputStream outputStream = mContext.openFileOutput(BACKEND_FILENAME, Context.MODE_PRIVATE);
+            try {
+                mStreams.copy(inputStream, outputStream);
+            } catch (IOException e) {
+                // TODO: error handling
+                throw new RuntimeException(e.toString());
+            } finally {
+                mStreams.close(inputStream);
+                mStreams.close(outputStream);
+            }
         }
         catch (IOException e) {
+            // TODO: error handling
             throw new RuntimeException(e.toString());
         }
-    }
-
-    ByteArrayOutputStream readStream(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        int oneByte = -1;
-        while ((oneByte = inputStream.read()) > 0) {
-            buffer.write(oneByte);
-        }
-        inputStream.close();
-        return buffer;
     }
 
 }
