@@ -53,6 +53,12 @@ class BackendConfiguratorImpl implements BackendConfigurator {
 
     @Override
     public void configure() throws BackendException {
+        if (!mTaskFile.exists()) {
+            acquireBackend();
+        }
+    }
+
+    private void acquireBackend() throws BackendException {
         try {
             InputStream inputStream = mProvider.getInputStream();
             OutputStream outputStream = mContext.openFileOutput(BACKEND_FILENAME, Context.MODE_PRIVATE);

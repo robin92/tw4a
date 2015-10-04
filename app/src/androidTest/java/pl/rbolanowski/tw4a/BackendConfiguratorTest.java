@@ -17,6 +17,7 @@ public class BackendConfiguratorTest extends AndroidMockitoTestCase {
 
     private MockContext mContext;
     private BackendProvider mProvider;
+    private File mFile;
     private BackendConfigurator mConfigurator;
     private StreamUtil mStreams = new StreamUtil();
 
@@ -30,6 +31,8 @@ public class BackendConfiguratorTest extends AndroidMockitoTestCase {
 
     private void setUpContext() {
         mContext = mock(MockContext.class);
+        mFile = mock(File.class);
+        when(mContext.getFileStreamPath("task")).thenReturn(mFile);
     }
 
     private void setUpProvider() throws Exception {
@@ -51,6 +54,7 @@ public class BackendConfiguratorTest extends AndroidMockitoTestCase {
     }
 
     public void testDownloadingBackendBinaryFailureHandling() throws Exception {
+        when(mFile.exists()).thenReturn(false);
         when(mProvider.getInputStream()).thenThrow(IOException.class);
         assertThrowsBackendException(new ThrowingRunnable() {
             @Override
@@ -61,6 +65,7 @@ public class BackendConfiguratorTest extends AndroidMockitoTestCase {
     }
 
     public void testOpeningInternalStorageFailureHandling() throws Exception {
+        when(mFile.exists()).thenReturn(false);
         when(mContext.openFileOutput(anyString(), anyInt())).thenThrow(IOException.class);
         assertThrowsBackendException(new ThrowingRunnable() {
             @Override
@@ -71,6 +76,8 @@ public class BackendConfiguratorTest extends AndroidMockitoTestCase {
     }
 
     public void testDownloadsBackendBinary() throws Exception {
+        when(mFile.exists()).thenReturn(false);
+
         InputStream inputStream = new ByteArrayInputStream(BINARY_CONTENT.getBytes());
         when(mProvider.getInputStream()).thenReturn(inputStream);
 
@@ -84,6 +91,12 @@ public class BackendConfiguratorTest extends AndroidMockitoTestCase {
         verify(mContext).openFileOutput("task", MockContext.MODE_PRIVATE);
 
         MoreAsserts.assertEquals(BINARY_CONTENT.getBytes(), readFile(tempFile));
+    }
+
+    public void testSkipsDownloadingWhenBackendAlreadyThere() throws Exception {
+        when(mFile.exists()).thenReturn(true);
+        mConfigurator.configure();
+        verifyZeroInteractions(mProvider);
     }
 
     private byte[] readFile(File file) throws IOException {
