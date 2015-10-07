@@ -1,3 +1,5 @@
+apply plugin: 'jacoco'
+
 buildscript {
     repositories {
         jcenter()
@@ -8,8 +10,11 @@ buildscript {
 }
 
 allprojects {
+    jacoco {
+        version '0.7.5.201505241946'
+    }
+
     repositories {
         jcenter()
     }
 }
-
