@@ -34,26 +34,37 @@ public class NativeBinaryBackendConfigurator implements BackendConfigurator {
     }
 
     private void acquireBackend() throws BackendException {
+        InputStream inputStream = null;
+        OutputStream outputStream = null;
         try {
-            InputStream inputStream = mProvider.getInputStream();
-            OutputStream outputStream = mContext.openFileOutput(BACKEND_FILENAME, Context.MODE_PRIVATE);
-            copy(inputStream, outputStream);
+            inputStream = mProvider.getInputStream();
+            outputStream = mContext.openFileOutput(BACKEND_FILENAME, Context.MODE_PRIVATE);
+            mStreams.copy(inputStream, outputStream);
         }
         catch (IOException e) {
             throw new BackendDownloadException();
         }
-    }
-
-    private void copy(InputStream inputStream, OutputStream outputStream) throws IOException {
-        try {
-            mStreams.copy(inputStream, outputStream);
-        } catch (IOException e) {
-            // TODO: error handling
-            throw new RuntimeException(e.toString());
-        } finally {
-            inputStream.close();
-            outputStream.close();
+        finally {
+            closeQuietly(inputStream);
+            closeQuietly(outputStream);
         }
     }
 
+    private void closeQuietly(InputStream stream) {
+        if (stream == null) return;
+        try {
+            stream.close();
+        }
+        catch (IOException e) {}
+    }
+
+    private void closeQuietly(OutputStream stream) {
+        if (stream == null) return;
+        try {
+            stream.close();
+        }
+        catch (IOException e) {}
+    }
+
 }
+
