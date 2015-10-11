@@ -19,7 +19,7 @@ public class StreamUtil {
     public ByteArrayOutputStream read(InputStream inputStream) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         int oneByte = -1;
-        while ((oneByte = inputStream.read()) > 0) {
+        while ((oneByte = inputStream.read()) >= 0) {
             buffer.write(oneByte);
         }
         return buffer;
