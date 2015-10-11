@@ -52,8 +52,8 @@ public class NativeBinaryBackendConfigurator implements BackendConfigurator {
             // TODO: error handling
             throw new RuntimeException(e.toString());
         } finally {
-            mStreams.close(inputStream);
-            mStreams.close(outputStream);
+            inputStream.close();
+            outputStream.close();
         }
     }
 

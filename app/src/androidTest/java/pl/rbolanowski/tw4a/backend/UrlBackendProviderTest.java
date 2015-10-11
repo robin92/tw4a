@@ -41,7 +41,7 @@ public class UrlBackendProviderTest extends AndroidTestCase {
     }
 
     public void testReturnsStreamFromUrl() throws Exception {
-        String actual = new String(mStreams.readAndClose(mProvider.getInputStream()).toByteArray());
+        String actual = new String(mStreams.read(mProvider.getInputStream()).toByteArray());
         assertEquals(CONTENT, actual);
         verify(mConnectionMock, atLeast(1)).getInputStream();
     }

@@ -109,7 +109,7 @@ public class NativeBinaryBackendConfiguratorTest extends AndroidMockitoTestCase 
     }
 
     private byte[] readFile(File file) throws IOException {
-        return mStreams.readAndClose(new FileInputStream(file)).toByteArray();
+        return mStreams.read(new FileInputStream(file)).toByteArray();
     }
 
 }
