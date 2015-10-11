@@ -10,12 +10,12 @@ import static org.mockito.Mockito.*;
 public class MockitoTest extends AndroidMockitoTestCase {
 
     public void testVerifyHandlesNullMock() throws Exception {
-        boolean catched = false;
-        try {
-            verify(null);
-        }
-        catch (NullInsteadOfMockException e) { catched = true; }
-        assertTrue(catched);
+        assertThrows(NullInsteadOfMockException.class, new ThrowingRunnable() {
+            @Override
+            public void run() throws Exception {
+                verify(null);
+            }
+        });
     }
 
     public void testVerifyMockCalls() throws Exception {
