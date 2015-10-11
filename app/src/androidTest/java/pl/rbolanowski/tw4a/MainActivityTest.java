@@ -36,8 +36,8 @@ public class MainActivityTest {
 
     private void assertResourceReady(String name) {
         File file = mActivity.getFileStreamPath(name);
-        assertTrue(file.exists());
-        assertTrue(file.canExecute());
+        assertTrue("file " + file.getPath() + " doesn't exist", file.exists());
+        assertTrue("file " + file.getPath() + " not executable", file.canExecute());
     }
 
 }
