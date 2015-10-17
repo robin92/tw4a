@@ -6,16 +6,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.concurrent.TimeUnit;
-
 import pl.rbolanowski.tw4a.backend.*;
+import pl.rbolanowski.tw4a.backend.taskwarrior.TaskwarriorBackendFactory;
 
 public class MainActivity extends Activity {
-
-    private static final String LOG_TAG = "MainActivity";
-    private static final String BACKEND_URL_STR = "https://dl.dropboxusercontent.com/u/90959340/tw4a/2.4.4/armeabi/task";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -30,18 +24,8 @@ public class MainActivity extends Activity {
     }
 
     private void configureBackendAsync() {
-        BackendProvider provider;
-        try {
-            provider = new UrlBackendProvider(new URL(BACKEND_URL_STR));
-        }
-        catch (MalformedURLException e) {
-            Log.wtf(LOG_TAG, "backend url is malformed: " + BACKEND_URL_STR);
-            return;
-        }
-
-        assert provider != null;
         new ConfigureBackendAsyncTask(
-                new NativeBinaryBackendConfigurator(this, provider),
+                new TaskwarriorBackendFactory(this).newConfigurator(),
                 findViewById(android.R.id.progress),
                 findViewById(android.R.id.text1))
             .execute();
@@ -72,9 +56,9 @@ class ConfigureBackendAsyncTask extends ResourceLoadingAsyncTask {
 
     private static final String LOG_TAG = "ConfigureBackendAsyncTask";
 
-    private BackendConfigurator mConfigurator;
+    private Configurator mConfigurator;
 
-    public ConfigureBackendAsyncTask(BackendConfigurator configurator, View loadingView, View readyView) {
+    public ConfigureBackendAsyncTask(Configurator configurator, View loadingView, View readyView) {
         super(loadingView, readyView);
         mConfigurator = configurator;
     }
@@ -84,7 +68,7 @@ class ConfigureBackendAsyncTask extends ResourceLoadingAsyncTask {
         try {
             mConfigurator.configure();
         }
-        catch (BackendConfigurator.BackendException e) {
+        catch (Configurator.BackendException e) {
             Log.e(LOG_TAG, "configuring backend failed: " + e.toString());
         }
         return null;

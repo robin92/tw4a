@@ -1,4 +1,4 @@
-package pl.rbolanowski.tw4a.backend;
+package pl.rbolanowski.tw4a.backend.taskwarrior;
 
 import android.support.test.runner.AndroidJUnit4;
 
@@ -15,11 +15,11 @@ import pl.rbolanowski.tw4a.test.AndroidMockitoTestCase;
 import static org.mockito.Mockito.*;
 
 @RunWith(AndroidJUnit4.class)
-public class UrlBackendProviderTest extends AndroidMockitoTestCase {
+public class UrlTaskwarriorProviderTest extends AndroidMockitoTestCase {
 
     private static final String CONTENT = "hello world";
 
-    private UrlBackendProvider mProvider;
+    private UrlTaskwarriorProvider mProvider;
     private URLConnection mConnectionMock;
     private StreamUtil mStreams = new StreamUtil();
 
@@ -41,7 +41,7 @@ public class UrlBackendProviderTest extends AndroidMockitoTestCase {
             }
         };
         URL fakeUrl = new URL("http", "dummy.url.com", 80, "/with/some/stuff.any", handler);
-        mProvider = new UrlBackendProvider(fakeUrl);
+        mProvider = new UrlTaskwarriorProvider(fakeUrl);
     }
 
     @Test public void returnsStreamFromUrl() throws Exception {
