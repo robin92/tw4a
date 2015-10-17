@@ -13,7 +13,7 @@ public class TaskwarriorDatabaseTest extends AndroidTestCase {
     private TaskwarriorDatabase mDatabase = new TaskwarriorDatabase();
 
     @Test public void selectsEmptyList() {
-        assertTrue(mDatabase.select().isEmpty());
+        assertEquals(0, mDatabase.select().length);
     }
 
 }
