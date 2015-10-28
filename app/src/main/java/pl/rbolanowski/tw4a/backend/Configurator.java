@@ -1,6 +1,6 @@
 package pl.rbolanowski.tw4a.backend;
 
-public interface BackendConfigurator {
+public interface Configurator {
 
     abstract class BackendException extends Exception {}
 

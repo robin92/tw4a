@@ -1,9 +1,9 @@
-package pl.rbolanowski.tw4a.backend;
+package pl.rbolanowski.tw4a.backend.taskwarrior;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-public interface BackendProvider {
+public interface TaskwarriorProvider {
 
     InputStream getInputStream() throws IOException;
 

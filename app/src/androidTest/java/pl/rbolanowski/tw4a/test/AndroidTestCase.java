@@ -8,15 +8,12 @@ import org.junit.Before;
 
 public class AndroidTestCase extends Assert {
 
-    private Context mTargetContext;
-
     @Before public void setUpContext() {
-        mTargetContext = InstrumentationRegistry.getTargetContext();
-        assertNotNull(mTargetContext);
+        assertNotNull(getTargetContext());
     }
 
-    protected Context getTargetContext() {
-        return mTargetContext;
+    protected static Context getTargetContext() {
+        return InstrumentationRegistry.getTargetContext();
     }
 
 }
