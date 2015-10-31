@@ -5,7 +5,9 @@ import android.view.View;
 import org.junit.Before;
 import org.junit.Test;
 
+import pl.rbolanowski.tw4a.backend.BackendFactory;
 import pl.rbolanowski.tw4a.backend.Configurator;
+import pl.rbolanowski.tw4a.backend.Database;
 import pl.rbolanowski.tw4a.test.AndroidMockitoTestCase;
 
 import static org.mockito.Mockito.*;
@@ -23,13 +25,21 @@ public class ConfigureBackendAsyncTaskTest extends AndroidMockitoTestCase {
     }
 
     @Before public void setUp() throws Exception {
+        BackendFactory factory = mock(BackendFactory.class);
         mConfigurator = mock(Configurator.class);
-        mTask = new ConfigureBackendAsyncTask(mConfigurator, mLoadingView, mReadyView);
+        when(factory.newConfigurator()).thenReturn(mConfigurator);
+        when(factory.newDatabase()).thenReturn(mock(Database.class));
+        mTask = new ConfigureBackendAsyncTask(factory, mLoadingView, mReadyView);
     }
 
     @Test public void configuresBackend() throws Exception {
         mTask.doInBackground();
         verify(mConfigurator, atLeastOnce()).configure();
+    }
+
+    @Test public void setsDatabaseOnSuccessfulConfiguration() throws Exception {
+        mTask.onPostExecute(null);
+        assertNotNull(DatabaseProvider.getInstance().getDatabase());
     }
 
     @Test public void changesLoadingAndReadyViewVisibility() throws Exception {
