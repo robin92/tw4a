@@ -79,6 +79,7 @@ class ConfigureBackendAsyncTask extends ResourceLoadingAsyncTask {
         }
         catch (Configurator.BackendException e) {
             Log.e(LOG_TAG, "configuring backend failed: " + e.toString());
+            throw new IllegalStateException();
         }
         return null;
     }

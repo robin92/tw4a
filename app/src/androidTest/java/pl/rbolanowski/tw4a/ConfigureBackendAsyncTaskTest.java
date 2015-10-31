@@ -15,6 +15,8 @@ import static org.junit.Assume.assumeTrue;
 
 public class ConfigureBackendAsyncTaskTest extends AndroidMockitoTestCase {
 
+    private static class FakeException extends Configurator.BackendException {}
+
     private View mLoadingView = makeView();
     private View mReadyView = makeView();
     private Configurator mConfigurator;
@@ -30,6 +32,12 @@ public class ConfigureBackendAsyncTaskTest extends AndroidMockitoTestCase {
         when(factory.newConfigurator()).thenReturn(mConfigurator);
         when(factory.newDatabase()).thenReturn(mock(Database.class));
         mTask = new ConfigureBackendAsyncTask(factory, mLoadingView, mReadyView);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void failureDuringConfigurationIsFatal() throws Exception {
+        doThrow(FakeException.class).when(mConfigurator).configure();
+        mTask.doInBackground();
     }
 
     @Test public void configuresBackend() throws Exception {
