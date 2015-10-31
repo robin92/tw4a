@@ -45,9 +45,8 @@ abstract class ResourceLoadingAsyncTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPostExecute(Void someVoid) {
-        int visibility = mLoadingView.getVisibility();
-        mLoadingView.setVisibility(mReadyView.getVisibility());
-        mReadyView.setVisibility(visibility);
+        mLoadingView.setVisibility(View.GONE);
+        mReadyView.setVisibility(View.VISIBLE);
     }
 
 }

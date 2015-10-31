@@ -9,6 +9,7 @@ import pl.rbolanowski.tw4a.backend.Configurator;
 import pl.rbolanowski.tw4a.test.AndroidMockitoTestCase;
 
 import static org.mockito.Mockito.*;
+import static org.junit.Assume.assumeTrue;
 
 public class ConfigureBackendAsyncTaskTest extends AndroidMockitoTestCase {
 
@@ -32,13 +33,29 @@ public class ConfigureBackendAsyncTaskTest extends AndroidMockitoTestCase {
     }
 
     @Test public void changesLoadingAndReadyViewVisibility() throws Exception {
+        setUpViews();
+        mTask.onPostExecute(null);
+        assertVisibilityChanged();
+    }
+
+    @Test public void multipleCallSetsReadyViewVisible() throws Exception {
+        setUpViews();
+        mTask.onPostExecute(null);
+        mTask.onPostExecute(null);
+        assertVisibilityChanged();
+    }
+
+    private void setUpViews() {
         mLoadingView.setVisibility(View.VISIBLE);
         mReadyView.setVisibility(View.GONE);
+    }
 
-        mTask.onPostExecute(null);
-
-        assertEquals(View.GONE, mLoadingView.getVisibility());
-        assertEquals(View.VISIBLE, mReadyView.getVisibility());
+    private void assertVisibilityChanged() {
+        boolean loadingViewGone = mLoadingView.getVisibility() == View.GONE;
+        boolean readyViewVisible = mReadyView.getVisibility() == View.VISIBLE;
+        assumeTrue(loadingViewGone);
+        assumeTrue(readyViewVisible);
+        assertTrue(loadingViewGone && readyViewVisible);
     }
 
 }
