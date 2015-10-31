@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
 import pl.rbolanowski.tw4a.backend.*;
 import pl.rbolanowski.tw4a.backend.taskwarrior.TaskwarriorBackendFactory;
 
@@ -21,13 +24,18 @@ public class MainActivity extends Activity {
     public void onStart() {
         super.onStart();
         configureBackendAsync();
+        Database database = DatabaseProvider.getInstance().getDatabase();
+        ListView list = (ListView) findViewById(android.R.id.list);
+        Task[] values = database.select();
+        TaskListAdapter taskListAdapter = new TaskListAdapter(this, R.layout.task_list_element, values);
+        list.setAdapter(taskListAdapter);
     }
 
     private void configureBackendAsync() {
         new ConfigureBackendAsyncTask(
                 new TaskwarriorBackendFactory(this).newConfigurator(),
                 findViewById(android.R.id.progress),
-                findViewById(android.R.id.text1))
+                findViewById(android.R.id.list))
             .execute();
     }
 
