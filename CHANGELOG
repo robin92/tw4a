@@ -2,4 +2,5 @@ next
 ================================================================================
 + [backend] reads data stored by taskwarrior
 + [backend] taskwarrior environment is prepared (binary, variables, rc)
++ [backend] inserting data to taskwarrior
 + ...
