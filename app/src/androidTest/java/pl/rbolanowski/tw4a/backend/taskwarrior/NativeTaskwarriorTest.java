@@ -2,6 +2,7 @@ package pl.rbolanowski.tw4a.backend.taskwarrior;
 
 import android.support.test.runner.AndroidJUnit4;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -21,7 +22,20 @@ public class NativeTaskwarriorTest extends AndroidTestCase {
     private NativeTaskwarrior mTaskwarrior;
 
     @Before public void setupTaskwarrior() {
-        mTaskwarrior = new NativeTaskwarrior(getTargetContext());
+        mTaskwarrior = new NativeTaskwarrior(getTargetContext(), TaskwarriorBackendFactory.getSpec());
+    }
+
+    @After public void clearDataDirectory() {
+        mTaskwarrior.clear();
+    }
+
+    @Test public void putsTasks() {
+        NativeTaskwarrior.Output outputs[] = new NativeTaskwarrior.Output[] {
+            mTaskwarrior.put("first"),
+            mTaskwarrior.put("second"),
+        };
+        assertTrue(matchPattern(Pattern.compile("Created task 1"), outputs[0].stdout));
+        assertTrue(matchPattern(Pattern.compile("Created task 2"), outputs[1].stdout));
     }
 
     @Test public void exportsData() throws Exception{

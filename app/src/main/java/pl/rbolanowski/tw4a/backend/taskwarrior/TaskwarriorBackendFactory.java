@@ -26,16 +26,20 @@ public class TaskwarriorBackendFactory implements BackendFactory {
 
     @Override
     public Configurator newConfigurator() {
+        return new NativeTaskwarriorConfigurator(mContext, mProvider, getSpec());
+    }
+
+    protected static NativeTaskwarriorConfigurator.Spec getSpec() {
         NativeTaskwarriorConfigurator.Spec spec = new NativeTaskwarriorConfigurator.Spec();
         spec.binary = TASKWARRIOR_FILENAME;
         spec.config = TASKWARRIOR_RC;
         spec.dataDir = TASKWARRIOR_DATADIR;
-        return new NativeTaskwarriorConfigurator(mContext, mProvider, spec);
+        return spec;
     }
 
     @Override
     public Database newDatabase() {
-        Taskwarrior taskwarrior = new NativeTaskwarrior(mContext);
+        Taskwarrior taskwarrior = new NativeTaskwarrior(mContext, getSpec());
         return new TaskwarriorDatabase(taskwarrior, new JsonTranslator());
     }
 

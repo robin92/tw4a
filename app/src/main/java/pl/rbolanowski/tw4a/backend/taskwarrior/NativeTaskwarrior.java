@@ -10,15 +10,38 @@ import pl.rbolanowski.tw4a.StreamUtil;
 public class NativeTaskwarrior implements Taskwarrior {
 
     private static final String LOG_TAG = NativeTaskwarrior.class.getSimpleName();
-    private static final String TASKWARRIOR_BINARY = "task";
-    private static final String[] ENVIRONMENT = new String[] { "TASKRC=taskrc", "TASKDATA=taskdata" };
 
+    private Context mContext;
     private File mBinary;
+    private File mConfig;
+    private File mDataDir;
+    private String[] mEnvironment;
     private StreamUtil mStreams = new StreamUtil();
 
-    public NativeTaskwarrior(Context context) {
-        mBinary = context.getFileStreamPath(TASKWARRIOR_BINARY);
-        Log.d(LOG_TAG, "binary path: " + mBinary.getAbsolutePath() + ", exists: " + mBinary.exists());
+    public NativeTaskwarrior(Context context, NativeTaskwarriorConfigurator.Spec spec) {
+        mContext = context;
+        accessFiles(spec);
+        createEnvironment();
+    }
+
+    private void accessFiles(NativeTaskwarriorConfigurator.Spec spec) {
+        mBinary = get(spec.binary);
+        mConfig = get(spec.config);
+        mDataDir = get(spec.dataDir);
+        assert(mBinary.exists());
+        assert(mConfig.exists());
+        assert(mDataDir.isDirectory() && mDataDir.exists());
+    }
+
+    private File get(String name) {
+        return mContext.getFileStreamPath(name);
+    }
+
+    private void createEnvironment() {
+        mEnvironment = new String[] {
+            String.format("TASKRC=%s", mConfig.getAbsolutePath()),
+            String.format("TASKDATA=%s", mDataDir.getAbsolutePath()),
+        };
     }
 
     @Override
@@ -31,12 +54,18 @@ public class NativeTaskwarrior implements Taskwarrior {
         }
     }
 
-    protected void put(String description) throws IOException, InterruptedException {
-        execute(mBinary.getAbsolutePath(), "add", description); // TODO: verify output
+    @Override
+    public Output put(String description) {
+        try {
+            return execute(mBinary.getAbsolutePath(), "add", description);
+        }
+        catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e.toString());
+        }
     }
 
     private Output execute(String... args) throws IOException, InterruptedException {
-        Process process = Runtime.getRuntime().exec(args, ENVIRONMENT, mBinary.getParentFile());
+        Process process = Runtime.getRuntime().exec(args, mEnvironment, mBinary.getParentFile());
         process.waitFor();
 
         Output out = new Output();
@@ -59,6 +88,16 @@ public class NativeTaskwarrior implements Taskwarrior {
             builder.append(arg).append(" ");
         }
         return builder;
+    }
+
+    protected void clear() {
+        clearDirectory(mDataDir);
+    }
+
+    private void clearDirectory(File dir) {
+        for (String child : dir.list()) {
+            new File(dir, child).delete();
+        }
     }
 
 }

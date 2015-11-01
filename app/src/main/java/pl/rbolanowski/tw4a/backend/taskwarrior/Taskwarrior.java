@@ -11,4 +11,6 @@ public interface Taskwarrior {
 
     Output export();
 
+    Output put(String description);
+
 }

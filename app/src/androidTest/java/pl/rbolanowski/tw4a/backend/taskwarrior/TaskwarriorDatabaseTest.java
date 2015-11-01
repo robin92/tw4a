@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import pl.rbolanowski.tw4a.Task;
+import pl.rbolanowski.tw4a.backend.Database;
 import pl.rbolanowski.tw4a.test.AndroidTestCase;
 
 import static org.mockito.Mockito.*;
@@ -23,6 +24,23 @@ public class TaskwarriorDatabaseTest extends AndroidTestCase {
         mTaskwarrior = mock(Taskwarrior.class);
         mTranslator = mock(Translator.class);
         mDatabase = new TaskwarriorDatabase(mTaskwarrior, mTranslator);
+    }
+
+    @Test(expected = Database.AlreadyStoredException.class)
+    public void insertingElementWithUuidCausesException() throws Exception {
+        mTask.uuid = "some uuid";
+        mDatabase.insert(mTask);
+    }
+
+    @Test(expected = Database.IncompleteArgumentException.class)
+    public void insertingElementWithEmptyDescriptionCausesDetailedException() throws Exception {
+        mDatabase.insert(mTask);
+    }
+
+    @Test public void insertsTask() throws Exception {
+        mTask.description = "this is some task";
+        mDatabase.insert(mTask);
+        verify(mTaskwarrior, atLeastOnce()).put(mTask.description);
     }
 
     @Test public void selectsZeroTasksOnParsingError() throws Exception {
