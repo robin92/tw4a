@@ -33,7 +33,7 @@ public class MainActivity extends Activity {
 
     private void configureBackendAsync() {
         new ConfigureBackendAsyncTask(
-                new TaskwarriorBackendFactory(this).newConfigurator(),
+                new TaskwarriorBackendFactory(this),
                 findViewById(android.R.id.progress),
                 findViewById(android.R.id.list))
             .execute();
@@ -64,10 +64,12 @@ class ConfigureBackendAsyncTask extends ResourceLoadingAsyncTask {
     private static final String LOG_TAG = "ConfigureBackendAsyncTask";
 
     private Configurator mConfigurator;
+    private Database mDatabase;
 
-    public ConfigureBackendAsyncTask(Configurator configurator, View loadingView, View readyView) {
+    public ConfigureBackendAsyncTask(BackendFactory factory, View loadingView, View readyView) {
         super(loadingView, readyView);
-        mConfigurator = configurator;
+        mConfigurator = factory.newConfigurator();
+        mDatabase = factory.newDatabase();
     }
 
     @Override
@@ -77,8 +79,15 @@ class ConfigureBackendAsyncTask extends ResourceLoadingAsyncTask {
         }
         catch (Configurator.BackendException e) {
             Log.e(LOG_TAG, "configuring backend failed: " + e.toString());
+            throw new IllegalStateException();
         }
         return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void someVoid) {
+        super.onPostExecute(someVoid);
+        DatabaseProvider.getInstance().setDatabase(mDatabase);
     }
 
 }
