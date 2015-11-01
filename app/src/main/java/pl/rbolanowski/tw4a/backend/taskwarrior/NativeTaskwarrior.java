@@ -10,17 +10,38 @@ import pl.rbolanowski.tw4a.StreamUtil;
 public class NativeTaskwarrior implements Taskwarrior {
 
     private static final String LOG_TAG = NativeTaskwarrior.class.getSimpleName();
-    private static final String BINARY = "task";
-    private static final String DATADIR = "taskdata";
-    private static final String[] ENVIRONMENT = new String[] { "TASKRC=taskrc", String.format("TASKDATA=%s", DATADIR) };
 
     private Context mContext;
     private File mBinary;
+    private File mConfig;
+    private File mDataDir;
+    private String[] mEnvironment;
     private StreamUtil mStreams = new StreamUtil();
 
-    public NativeTaskwarrior(Context context) {
+    public NativeTaskwarrior(Context context, NativeTaskwarriorConfigurator.Spec spec) {
         mContext = context;
-        mBinary = mContext.getFileStreamPath(BINARY);
+        accessFiles(spec);
+        createEnvironment();
+    }
+
+    private void accessFiles(NativeTaskwarriorConfigurator.Spec spec) {
+        mBinary = get(spec.binary);
+        mConfig = get(spec.config);
+        mDataDir = get(spec.dataDir);
+        assert(mBinary.exists());
+        assert(mConfig.exists());
+        assert(mDataDir.isDirectory() && mDataDir.exists());
+    }
+
+    private File get(String name) {
+        return mContext.getFileStreamPath(name);
+    }
+
+    private void createEnvironment() {
+        mEnvironment = new String[] {
+            String.format("TASKRC=%s", mConfig.getAbsolutePath()),
+            String.format("TASKDATA=%s", mDataDir.getAbsolutePath()),
+        };
     }
 
     @Override
@@ -44,7 +65,7 @@ public class NativeTaskwarrior implements Taskwarrior {
     }
 
     private Output execute(String... args) throws IOException, InterruptedException {
-        Process process = Runtime.getRuntime().exec(args, ENVIRONMENT, mBinary.getParentFile());
+        Process process = Runtime.getRuntime().exec(args, mEnvironment, mBinary.getParentFile());
         process.waitFor();
 
         Output out = new Output();
@@ -70,9 +91,7 @@ public class NativeTaskwarrior implements Taskwarrior {
     }
 
     protected void clear() {
-        File dataDir = mContext.getFileStreamPath(DATADIR);
-        if (!dataDir.isDirectory()) return;
-        clearDirectory(dataDir);
+        clearDirectory(mDataDir);
     }
 
     private void clearDirectory(File dir) {

@@ -22,7 +22,7 @@ public class NativeTaskwarriorTest extends AndroidTestCase {
     private NativeTaskwarrior mTaskwarrior;
 
     @Before public void setupTaskwarrior() {
-        mTaskwarrior = new NativeTaskwarrior(getTargetContext());
+        mTaskwarrior = new NativeTaskwarrior(getTargetContext(), TaskwarriorBackendFactory.getSpec());
     }
 
     @After public void clearDataDirectory() {
