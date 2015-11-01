@@ -4,6 +4,7 @@ import android.content.Context;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import com.google.inject.Inject;
 import pl.rbolanowski.tw4a.backend.*;
 
 public class TaskwarriorBackendFactory implements BackendFactory {
@@ -16,6 +17,7 @@ public class TaskwarriorBackendFactory implements BackendFactory {
     private Context mContext;
     private TaskwarriorProvider mProvider;
 
+    @Inject
     public TaskwarriorBackendFactory(Context context) {
         mContext = context;
         try {

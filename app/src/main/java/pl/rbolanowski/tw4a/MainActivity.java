@@ -1,42 +1,34 @@
 package pl.rbolanowski.tw4a;
 
-import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.google.inject.Inject;
+import roboguice.activity.RoboActivity;
+import roboguice.inject.ContentView;
+import roboguice.inject.InjectView;
+
 import pl.rbolanowski.tw4a.backend.*;
-import pl.rbolanowski.tw4a.backend.taskwarrior.TaskwarriorBackendFactory;
 
-public class MainActivity extends Activity {
+@ContentView(R.layout.main)
+public class MainActivity extends RoboActivity {
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
-    }
+    @Inject private BackendFactory mBackend;
+    @InjectView(android.R.id.list) private ListView mListView;
+    @InjectView(android.R.id.progress) private View mLoadingView;
 
     @Override
     public void onStart() {
         super.onStart();
         configureBackendAsync();
-        Database database = DatabaseProvider.getInstance().getDatabase();
-        ListView list = (ListView) findViewById(android.R.id.list);
-        Task[] values = database.select();
-        TaskListAdapter taskListAdapter = new TaskListAdapter(this, R.layout.task_list_element, values);
-        list.setAdapter(taskListAdapter);
     }
 
     private void configureBackendAsync() {
-        new ConfigureBackendAsyncTask(
-                new TaskwarriorBackendFactory(this),
-                findViewById(android.R.id.progress),
-                findViewById(android.R.id.list))
-            .execute();
+        new ConfigureBackendAsyncTask(this, mBackend, mLoadingView, mListView).execute();
     }
 
 }
@@ -63,13 +55,17 @@ class ConfigureBackendAsyncTask extends ResourceLoadingAsyncTask {
 
     private static final String LOG_TAG = "ConfigureBackendAsyncTask";
 
+    private Context mContext;
     private Configurator mConfigurator;
     private Database mDatabase;
+    private ListView mListView;
 
-    public ConfigureBackendAsyncTask(BackendFactory factory, View loadingView, View readyView) {
+    public ConfigureBackendAsyncTask(Context context, BackendFactory backend, View loadingView, View readyView) {
         super(loadingView, readyView);
-        mConfigurator = factory.newConfigurator();
-        mDatabase = factory.newDatabase();
+        mContext = context;
+        mConfigurator = backend.newConfigurator();
+        mDatabase = backend.newDatabase();
+        mListView = (ListView) readyView;
     }
 
     @Override
@@ -87,8 +83,13 @@ class ConfigureBackendAsyncTask extends ResourceLoadingAsyncTask {
     @Override
     protected void onPostExecute(Void someVoid) {
         super.onPostExecute(someVoid);
-        DatabaseProvider.getInstance().setDatabase(mDatabase);
+        populateList();
+    }
+
+    private void populateList() {
+        Task[] values = mDatabase.select();
+        TaskListAdapter taskListAdapter = new TaskListAdapter(mContext, R.layout.task_list_element, values);
+        mListView.setAdapter(taskListAdapter);
     }
 
 }
-

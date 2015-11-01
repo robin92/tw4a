@@ -2,6 +2,7 @@ package pl.rbolanowski.tw4a;
 
 import android.view.View;
 
+import android.widget.ListView;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,21 +18,29 @@ public class ConfigureBackendAsyncTaskTest extends AndroidMockitoTestCase {
 
     private static class FakeException extends Configurator.BackendException {}
 
-    private View mLoadingView = makeView();
-    private View mReadyView = makeView();
+    private View mLoadingView = new View(getTargetContext());
+    private View mReadyView = new ListView(getTargetContext());
     private Configurator mConfigurator;
+    private Database mDatabase;
     private ConfigureBackendAsyncTask mTask;
 
-    private static View makeView() {
-        return new View(getTargetContext());
+    @Before public void setUp() throws Exception {
+        configureMocks();
+        mTask = new ConfigureBackendAsyncTask(getTargetContext(), makeFactory(), mLoadingView, mReadyView);
     }
 
-    @Before public void setUp() throws Exception {
-        BackendFactory factory = mock(BackendFactory.class);
+    private void configureMocks() {
         mConfigurator = mock(Configurator.class);
+
+        mDatabase = mock(Database.class);
+        when(mDatabase.select()).thenReturn(new Task[0]);
+    }
+
+    private BackendFactory makeFactory() {
+        BackendFactory factory = mock(BackendFactory.class);
         when(factory.newConfigurator()).thenReturn(mConfigurator);
-        when(factory.newDatabase()).thenReturn(mock(Database.class));
-        mTask = new ConfigureBackendAsyncTask(factory, mLoadingView, mReadyView);
+        when(factory.newDatabase()).thenReturn(mDatabase);
+        return factory;
     }
 
     @Test(expected = IllegalStateException.class)
@@ -43,11 +52,6 @@ public class ConfigureBackendAsyncTaskTest extends AndroidMockitoTestCase {
     @Test public void configuresBackend() throws Exception {
         mTask.doInBackground();
         verify(mConfigurator, atLeastOnce()).configure();
-    }
-
-    @Test public void setsDatabaseOnSuccessfulConfiguration() throws Exception {
-        mTask.onPostExecute(null);
-        assertNotNull(DatabaseProvider.getInstance().getDatabase());
     }
 
     @Test public void changesLoadingAndReadyViewVisibility() throws Exception {

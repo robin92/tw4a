@@ -1,15 +1,19 @@
 package pl.rbolanowski.tw4a;
 
+import android.app.Application;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.widget.ListView;
 
 import java.io.File;
 
+import com.google.inject.AbstractModule;
 import org.junit.*;
 import org.junit.runner.RunWith;
+import roboguice.RoboGuice;
 
-import pl.rbolanowski.tw4a.backend.Database;
+import pl.rbolanowski.tw4a.backend.*;
+import pl.rbolanowski.tw4a.backend.taskwarrior.TaskwarriorBackendFactory;
 import pl.rbolanowski.tw4a.test.AndroidMockitoTestCase;
 
 import static android.support.test.espresso.Espresso.*;
@@ -21,28 +25,61 @@ import static org.mockito.Mockito.*;
 @RunWith(AndroidJUnit4.class)
 public class MainActivityTest extends AndroidMockitoTestCase {
 
-    @Rule public ActivityTestRule<MainActivity> mActivityRule;
-    private MainActivity mActivity;
-    private Task[] mTasks = new Task[3];
+    private class Module extends AbstractModule {
 
-    public MainActivityTest() {
-        configureTasks();
-        mActivityRule = new ActivityTestRule<>(MainActivity.class);
+        @Override
+        protected void configure() {
+            bind(BackendFactory.class).toInstance(mFactoryMock);
+        }
+
     }
 
-    private void configureTasks() {
+    @Rule public ActivityTestRule<MainActivity> mActivityRule = lazyActivityRule();
+
+    private Task[] mTasks = new Task[3];
+    private Database mDatabaseMock;
+    private BackendFactory mFactoryMock;
+    private MainActivity mActivity;
+
+    private static ActivityTestRule<MainActivity> lazyActivityRule() {
+        return new ActivityTestRule<>(MainActivity.class, false, false);
+    }
+
+    private void overrideModules() {
+        Application app = (Application) getTargetContext().getApplicationContext();
+        RoboGuice.overrideApplicationInjector(app, new Module());
+    }
+
+    private void configureDatabase() {
+        mDatabaseMock = mock(Database.class);
+        when(mDatabaseMock.select()).thenReturn(mTasks);
+    }
+
+    private void configureFactory() {
+        BackendFactory factory = new TaskwarriorBackendFactory(getTargetContext());
+        mFactoryMock = mock(BackendFactory.class);
+        when(mFactoryMock.newConfigurator()).thenReturn(factory.newConfigurator());
+        when(mFactoryMock.newDatabase()).thenReturn(mDatabaseMock);
+    }
+
+    private void populateTasks() {
         for (int i = 0; i < mTasks.length; i++) {
             mTasks[i] = new Task();
             mTasks[i].uuid = Integer.toString(i);
             mTasks[i].description = "task" + Integer.toString(i);
         }
-        Database database = mock(Database.class);
-        when(database.select()).thenReturn(mTasks);
-        DatabaseProvider.getInstance().setDatabase(database);      
     }
 
     @Before public void setUp() {
-        mActivity = mActivityRule.getActivity();
+        populateTasks();
+        configureDatabase();
+        configureFactory();
+        overrideModules();
+        startActivity();
+    }
+
+    private void startActivity() {
+        mActivity = mActivityRule.launchActivity(null);
         assertNotNull(mActivity);
     }
 
@@ -52,8 +89,9 @@ public class MainActivityTest extends AndroidMockitoTestCase {
     }
 
     @Test public void listViewShowsTasks() {
-        onView(withId(android.R.id.list)).check(matches(isDisplayed()));
-        ListView list = (ListView) mActivity.findViewById(android.R.id.list);
+        final int listId = android.R.id.list;
+        onView(withId(listId)).check(matches(isDisplayed()));
+        ListView list = (ListView) mActivity.findViewById(listId);
         assertEquals(mTasks.length, list.getChildCount());
     }
 
@@ -68,4 +106,3 @@ public class MainActivityTest extends AndroidMockitoTestCase {
     }
 
 }
-
