@@ -9,7 +9,7 @@ public interface Database {
     class AlreadyStoredException extends Exception {}
 
     class IncompleteArgumentException extends Exception {}
-    
+
     @NonNull Task[] select();
 
     void insert(Task task) throws AlreadyStoredException, IncompleteArgumentException;

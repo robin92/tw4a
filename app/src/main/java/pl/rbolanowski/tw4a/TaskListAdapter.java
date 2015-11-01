@@ -14,7 +14,7 @@ public class TaskListAdapter extends ArrayAdapter<Task> {
 
     private Context mContext;
     private int mResource;
-  
+
     public TaskListAdapter(Context context, int resource, Task[] tasks) {
         super(context, resource, tasks);
         this.mContext = context;
