@@ -1,5 +1,6 @@
 package pl.rbolanowski.tw4a;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
@@ -24,18 +25,10 @@ public class MainActivity extends RoboActivity {
     public void onStart() {
         super.onStart();
         configureBackendAsync();
-        populateList();
     }
 
     private void configureBackendAsync() {
-        new ConfigureBackendAsyncTask(mBackend.newConfigurator(), mLoadingView, mListView).execute();
-    }
-
-    private void populateList() {
-        Database database = mBackend.newDatabase();
-        Task[] values = database.select();
-        TaskListAdapter taskListAdapter = new TaskListAdapter(this, R.layout.task_list_element, values);
-        mListView.setAdapter(taskListAdapter);
+        new ConfigureBackendAsyncTask(this, mBackend, mLoadingView, mListView).execute();
     }
 
 }
@@ -62,11 +55,17 @@ class ConfigureBackendAsyncTask extends ResourceLoadingAsyncTask {
 
     private static final String LOG_TAG = "ConfigureBackendAsyncTask";
 
+    private Context mContext;
     private Configurator mConfigurator;
+    private Database mDatabase;
+    private ListView mListView;
 
-    public ConfigureBackendAsyncTask(Configurator configurator, View loadingView, View readyView) {
+    public ConfigureBackendAsyncTask(Context context, BackendFactory backend, View loadingView, View readyView) {
         super(loadingView, readyView);
-        mConfigurator = configurator;
+        mContext = context;
+        mConfigurator = backend.newConfigurator();
+        mDatabase = backend.newDatabase();
+        mListView = (ListView) readyView;
     }
 
     @Override
@@ -79,6 +78,18 @@ class ConfigureBackendAsyncTask extends ResourceLoadingAsyncTask {
             throw new IllegalStateException();
         }
         return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void someVoid) {
+        super.onPostExecute(someVoid);
+        populateList();
+    }
+
+    private void populateList() {
+        Task[] values = mDatabase.select();
+        TaskListAdapter taskListAdapter = new TaskListAdapter(mContext, R.layout.task_list_element, values);
+        mListView.setAdapter(taskListAdapter);
     }
 
 }

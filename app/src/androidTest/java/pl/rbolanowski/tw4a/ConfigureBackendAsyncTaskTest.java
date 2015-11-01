@@ -2,11 +2,13 @@ package pl.rbolanowski.tw4a;
 
 import android.view.View;
 
+import android.widget.ListView;
 import org.junit.Before;
 import org.junit.Test;
 
 import pl.rbolanowski.tw4a.backend.BackendFactory;
 import pl.rbolanowski.tw4a.backend.Configurator;
+import pl.rbolanowski.tw4a.backend.Database;
 import pl.rbolanowski.tw4a.test.AndroidMockitoTestCase;
 
 import static org.mockito.Mockito.*;
@@ -16,19 +18,29 @@ public class ConfigureBackendAsyncTaskTest extends AndroidMockitoTestCase {
 
     private static class FakeException extends Configurator.BackendException {}
 
-    private View mLoadingView = makeView();
-    private View mReadyView = makeView();
+    private View mLoadingView = new View(getTargetContext());
+    private View mReadyView = new ListView(getTargetContext());
     private Configurator mConfigurator;
+    private Database mDatabase;
     private ConfigureBackendAsyncTask mTask;
 
-    private static View makeView() {
-        return new View(getTargetContext());
+    @Before public void setUp() throws Exception {
+        configureMocks();
+        mTask = new ConfigureBackendAsyncTask(getTargetContext(), makeFactory(), mLoadingView, mReadyView);
     }
 
-    @Before public void setUp() throws Exception {
-        BackendFactory factory = mock(BackendFactory.class);
+    private void configureMocks() {
         mConfigurator = mock(Configurator.class);
-        mTask = new ConfigureBackendAsyncTask(mConfigurator, mLoadingView, mReadyView);
+
+        mDatabase = mock(Database.class);
+        when(mDatabase.select()).thenReturn(new Task[0]);
+    }
+
+    private BackendFactory makeFactory() {
+        BackendFactory factory = mock(BackendFactory.class);
+        when(factory.newConfigurator()).thenReturn(mConfigurator);
+        when(factory.newDatabase()).thenReturn(mDatabase);
+        return factory;
     }
 
     @Test(expected = IllegalStateException.class)
