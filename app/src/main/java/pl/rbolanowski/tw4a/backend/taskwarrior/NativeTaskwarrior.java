@@ -10,15 +10,17 @@ import pl.rbolanowski.tw4a.StreamUtil;
 public class NativeTaskwarrior implements Taskwarrior {
 
     private static final String LOG_TAG = NativeTaskwarrior.class.getSimpleName();
-    private static final String TASKWARRIOR_BINARY = "task";
-    private static final String[] ENVIRONMENT = new String[] { "TASKRC=taskrc", "TASKDATA=taskdata" };
+    private static final String BINARY = "task";
+    private static final String DATADIR = "taskdata";
+    private static final String[] ENVIRONMENT = new String[] { "TASKRC=taskrc", String.format("TASKDATA=%s", DATADIR) };
 
+    private Context mContext;
     private File mBinary;
     private StreamUtil mStreams = new StreamUtil();
 
     public NativeTaskwarrior(Context context) {
-        mBinary = context.getFileStreamPath(TASKWARRIOR_BINARY);
-        Log.d(LOG_TAG, "binary path: " + mBinary.getAbsolutePath() + ", exists: " + mBinary.exists());
+        mContext = context;
+        mBinary = mContext.getFileStreamPath(BINARY);
     }
 
     @Override
@@ -31,8 +33,14 @@ public class NativeTaskwarrior implements Taskwarrior {
         }
     }
 
-    protected void put(String description) throws IOException, InterruptedException {
-        execute(mBinary.getAbsolutePath(), "add", description); // TODO: verify output
+    @Override
+    public Output put(String description) {
+        try {
+            return execute(mBinary.getAbsolutePath(), "add", description);
+        }
+        catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e.toString());
+        }
     }
 
     private Output execute(String... args) throws IOException, InterruptedException {
@@ -59,6 +67,18 @@ public class NativeTaskwarrior implements Taskwarrior {
             builder.append(arg).append(" ");
         }
         return builder;
+    }
+
+    protected void clear() {
+        File dataDir = mContext.getFileStreamPath(DATADIR);
+        if (!dataDir.isDirectory()) return;
+        clearDirectory(dataDir);
+    }
+
+    private void clearDirectory(File dir) {
+        for (String child : dir.list()) {
+            new File(dir, child).delete();
+        }
     }
 
 }
