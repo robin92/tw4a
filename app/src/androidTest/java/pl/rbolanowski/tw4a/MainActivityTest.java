@@ -5,7 +5,6 @@ import android.support.test.runner.AndroidJUnit4;
 import android.widget.ListView;
 
 import java.io.File;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -14,11 +13,8 @@ import pl.rbolanowski.tw4a.backend.Database;
 import pl.rbolanowski.tw4a.test.AndroidMockitoTestCase;
 
 import static android.support.test.espresso.Espresso.*;
-import static android.support.test.espresso.IdlingPolicies.*;
 import static android.support.test.espresso.assertion.ViewAssertions.*;
 import static android.support.test.espresso.matcher.ViewMatchers.*;
-
-import static pl.rbolanowski.tw4a.test.Constants.*;
 
 import static org.mockito.Mockito.*;
 
@@ -48,7 +44,6 @@ public class MainActivityTest extends AndroidMockitoTestCase {
     @Before public void setUp() {
         mActivity = mActivityRule.getActivity();
         assertNotNull(mActivity);
-        setMasterPolicyTimeout(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
     }
 
     @Test public void activityLoadsData() {
