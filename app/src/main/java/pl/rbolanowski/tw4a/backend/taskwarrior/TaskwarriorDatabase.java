@@ -10,7 +10,8 @@ public class TaskwarriorDatabase implements Database {
 
     private static class Field {
 
-        private static class Description {}
+        private static class Description {
+        }
 
         static Description description;
 
@@ -28,7 +29,7 @@ public class TaskwarriorDatabase implements Database {
     public Task[] select() {
         LinkedList<Task> list = new LinkedList<>();
         translateTaskwarrior(mTaskwarrior.export(), list);
-        return list.toArray(new Task[] {});
+        return removeCompleted(list).toArray(new Task[] {});
     }
 
     private void translateTaskwarrior(Taskwarrior.Output output, List<Task> dest) {
@@ -43,11 +44,19 @@ public class TaskwarriorDatabase implements Database {
         }
     }
 
+    private List<Task> removeCompleted(List<Task> tasks) {
+        LinkedList<Task> completedTasks =  new LinkedList<>();
+        for (Task task : tasks) {
+            if (!task.done) continue;
+            completedTasks.add(task);
+        }
+        tasks.removeAll(completedTasks);
+        return tasks;
+    }
+
     @Override
     public void insert(Task task) throws AlreadyStoredException, IncompleteArgumentException {
-        if (task.uuid != null) {
-            throw new AlreadyStoredException();
-        }
+        if (task.uuid != null) throw new AlreadyStoredException();
         require(task.description, Field.description);
         mTaskwarrior.put(task.description);
     }
@@ -60,6 +69,16 @@ public class TaskwarriorDatabase implements Database {
         if (!value) {
             throw new IncompleteArgumentException();
         }
+    }
+
+    @Override
+    public void update(Task task) throws NotStoredException {
+        if (task.uuid == null) throw new NotStoredException();
+        mTaskwarrior.modify(task.uuid, task.description, translateStatus(task.done));
+    }
+
+    private static Taskwarrior.TaskStatus translateStatus(boolean done) {
+        return done ? Taskwarrior.TaskStatus.Completed : Taskwarrior.TaskStatus.Pending;
     }
 
 }

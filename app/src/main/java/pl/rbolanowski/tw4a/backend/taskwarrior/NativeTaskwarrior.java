@@ -1,9 +1,11 @@
 package pl.rbolanowski.tw4a.backend.taskwarrior;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.*;
+import java.util.Vector;
 
 import pl.rbolanowski.tw4a.StreamUtil;
 
@@ -46,18 +48,27 @@ public class NativeTaskwarrior implements Taskwarrior {
 
     @Override
     public Taskwarrior.Output export() {
-        try {
-            return execute(mBinary.getAbsolutePath(), "export");
-        }
-        catch (IOException | InterruptedException e) {
-            throw new RuntimeException("temporary exception: " + e.toString());
-        }
+        return executeWithRuntimeException(new CommandBuilder(Command.Export).build());
     }
 
     @Override
-    public Output put(String description) {
+    public Output put(@NonNull String description) {
+        return executeWithRuntimeException(new CommandBuilder(Command.Add).appendArg(description).build());
+    }
+
+    @Override
+    public Output modify(@NonNull String uuid, String description, TaskStatus status) {
+        String args[] = new CommandBuilder(Command.Modify)
+            .setFilter("uuid", uuid)
+            .appendArg("status", status)
+            .appendArg(description)
+            .build();
+        return executeWithRuntimeException(args);
+    }
+
+    private Output executeWithRuntimeException(String... args) {
         try {
-            return execute(mBinary.getAbsolutePath(), "add", description);
+            return execute(args);
         }
         catch (IOException | InterruptedException e) {
             throw new RuntimeException(e.toString());
@@ -65,13 +76,20 @@ public class NativeTaskwarrior implements Taskwarrior {
     }
 
     private Output execute(String... args) throws IOException, InterruptedException {
-        Process process = Runtime.getRuntime().exec(args, mEnvironment, mBinary.getParentFile());
+        Process process = Runtime.getRuntime().exec(prepend(mBinary.getAbsolutePath(), args), mEnvironment, mBinary.getParentFile());
         process.waitFor();
 
         Output out = new Output();
         out.stderr = new String(mStreams.read(process.getErrorStream()).toByteArray());
         out.stdout = new String(mStreams.read(process.getInputStream()).toByteArray());
         return log(args, out);
+    }
+
+    private static String[] prepend(String first, String[] second) {
+        String[] merged = new String[1 + second.length];
+        merged[0] = first;
+        for (int i = 0; i < second.length; i++) merged[1 + i] = second[i];
+        return merged;
     }
 
     private Output log(String[] args, Output output) {
@@ -98,6 +116,83 @@ public class NativeTaskwarrior implements Taskwarrior {
         for (String child : dir.list()) {
             new File(dir, child).delete();
         }
+    }
+
+}
+
+enum Command {
+
+    Add     ("add"),
+    Export  ("export"),
+    Modify  ("modify");
+
+    private String mRepr;
+
+    Command(String repr) {
+        mRepr = repr;
+    }
+
+    @Override
+    public String toString() { return mRepr; }
+
+}
+
+class CommandBuilder {
+
+    private static class Pair {
+
+        String name;
+        String value;
+
+        public Pair(String name, String value) {
+            this.name = name;
+            this.value = value;
+        }
+
+    }
+
+    private Command mCommand;
+    private Pair mFilter;
+    private Vector<Pair> mArgs = new Vector<>();
+
+    public CommandBuilder(Command command) {
+        mCommand = command;
+    }
+
+    public CommandBuilder setFilter(String name, Object value) {
+        mFilter = new Pair(name, value.toString());
+        return this;
+    }
+
+    public CommandBuilder appendArg(Object value) {
+        return appendArg(null, value);
+    }
+
+    public CommandBuilder appendArg(String name, Object value) {
+        if (value != null) {
+            mArgs.add(new Pair(name, value.toString()));
+        }
+        return this;
+    }
+
+    public String[] build() {
+        Vector<String> args = new Vector<>();
+        if (mFilter != null) args.add(translate(mFilter));
+        args.add(mCommand.toString());
+        args.addAll(translateAll(mArgs));
+        return args.toArray(new String[0]);
+    }
+
+    private static String translate(Pair pair) {
+        return pair.name == null ? pair.value : pair.name + ":\"" + pair.value + "\"";
+    }
+
+    private static Vector<String> translateAll(Vector<Pair> pairs) {
+        Vector<String> result = new Vector<>();
+        for (Pair pair : pairs) {
+            result.add(translate(pair));
+        }
+        return result;
     }
 
 }

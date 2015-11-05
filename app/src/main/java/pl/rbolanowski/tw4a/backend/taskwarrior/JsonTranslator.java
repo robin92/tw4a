@@ -68,6 +68,7 @@ class JsonParser {
         mVisitables = new VisitableNode[] {
             new DescriptionNode(mReader),
             new UuidNode(mReader),
+            new StatusNode(mReader),
         };
     }
 
@@ -153,3 +154,35 @@ class UuidNode extends StringNode {
     }
 
 }
+
+class StatusNode implements VisitableNode {
+
+    private JsonReader mReader;
+
+    public StatusNode(JsonReader reader) {
+        mReader = reader;
+    }
+
+    @Override
+    public boolean canVisit(String name) {
+        return "status".equals(name);
+    }
+
+    @Override
+    public void visit(Task task) throws IOException, JsonTranslator.ValueException {
+        task.done = isDone(mReader.nextString());
+    }
+
+    private static boolean isDone(String value) {
+        value = firstUpperCase(value);
+        return Taskwarrior.TaskStatus.Completed == Taskwarrior.TaskStatus.valueOf(value);
+    }
+
+    private static String firstUpperCase(String value) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(value.substring(0, 1).toUpperCase()).append(value.substring(1));
+        return builder.toString();
+    }
+
+}
+
