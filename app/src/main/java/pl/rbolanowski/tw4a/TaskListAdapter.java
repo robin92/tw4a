@@ -1,7 +1,6 @@
 package pl.rbolanowski.tw4a;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -15,7 +14,7 @@ public class TaskListAdapter extends ArrayAdapter<Task> {
     private Context mContext;
     private int mResource;
 
-    public TaskListAdapter(Context context, int resource, Task[] tasks) {
+    public TaskListAdapter(Context context, int resource, ArrayList<Task> tasks) {
         super(context, resource, tasks);
         this.mContext = context;
         this.mResource = resource;
@@ -29,4 +28,5 @@ public class TaskListAdapter extends ArrayAdapter<Task> {
         description.setText(getItem(position).description);
         return rowView;
     }
+
 }
