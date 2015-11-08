@@ -35,6 +35,7 @@ public class MainActivity extends RoboActivity {
     public void onStart() {
         super.onStart();
         mTaskListAdapter = new TaskListAdapter(this, R.layout.task_list_element, new ArrayList<Task>());
+        mListView.setAdapter(mTaskListAdapter);
         registerForContextMenu(mListView);
         configureBackendAsync();
     }
@@ -97,14 +98,12 @@ class ConfigureBackendAsyncTask extends ResourceLoadingAsyncTask {
 
     private Configurator mConfigurator;
     private Database mDatabase;
-    private ListView mListView;
     private TaskListAdapter mTaskListAdapter;
 
     public ConfigureBackendAsyncTask(BackendFactory backend, View loadingView, View readyView, TaskListAdapter taskListAdapter) {
         super(loadingView, readyView);
         mConfigurator = backend.newConfigurator();
         mDatabase = backend.newDatabase();
-        mListView = (ListView) readyView;
         mTaskListAdapter = taskListAdapter;
     }
 
@@ -129,7 +128,6 @@ class ConfigureBackendAsyncTask extends ResourceLoadingAsyncTask {
     private void populateList() {
         Task[] values = mDatabase.select();
         mTaskListAdapter.addAll(values);
-        mListView.setAdapter(mTaskListAdapter);
     }
 
 }
