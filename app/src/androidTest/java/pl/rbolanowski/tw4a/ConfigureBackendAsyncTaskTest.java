@@ -1,8 +1,8 @@
 package pl.rbolanowski.tw4a;
 
 import android.view.View;
-
 import android.widget.ListView;
+import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,11 +22,13 @@ public class ConfigureBackendAsyncTaskTest extends AndroidMockitoTestCase {
     private View mReadyView = new ListView(getTargetContext());
     private Configurator mConfigurator;
     private Database mDatabase;
+    private TaskListAdapter mTaskListAdapter;
     private ConfigureBackendAsyncTask mTask;
 
     @Before public void setUp() throws Exception {
         configureMocks();
-        mTask = new ConfigureBackendAsyncTask(getTargetContext(), makeFactory(), mLoadingView, mReadyView);
+        mTaskListAdapter = new TaskListAdapter(getTargetContext(), R.layout.task_list_element, new ArrayList<Task>());
+        mTask = new ConfigureBackendAsyncTask(makeFactory(), mLoadingView, mReadyView, mTaskListAdapter);
     }
 
     private void configureMocks() {

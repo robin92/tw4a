@@ -17,9 +17,13 @@ import pl.rbolanowski.tw4a.backend.taskwarrior.TaskwarriorBackendFactory;
 import pl.rbolanowski.tw4a.test.AndroidMockitoTestCase;
 
 import static android.support.test.espresso.Espresso.*;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.longClick;
 import static android.support.test.espresso.assertion.ViewAssertions.*;
+import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
 import static android.support.test.espresso.matcher.ViewMatchers.*;
 
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(AndroidJUnit4.class)
@@ -93,6 +97,18 @@ public class MainActivityTest extends AndroidMockitoTestCase {
         onView(withId(listId)).check(matches(isDisplayed()));
         ListView list = (ListView) mActivity.findViewById(listId);
         assertEquals(mTasks.length, list.getChildCount());
+    }
+
+    @Test public void contextMenuVisibleAferLongClick() {
+        onData(anything()).inAdapterView(withId(android.R.id.list)).atPosition(0).perform(longClick());
+        onView(withText(R.string.menu_done)).check(matches(isDisplayed()));
+        onView(withText(R.string.menu_edit)).check(matches(isDisplayed()));
+    }
+
+    @Test public void doneIsNotImplemented() {
+        onData(anything()).inAdapterView(withId(android.R.id.list)).atPosition(0).perform(longClick());
+        onView(withText(R.string.menu_done)).perform(click());
+        onView(withText(R.string.done_not_implemented)).inRoot(withDecorView(not(is(mActivity.getWindow().getDecorView())))).check(matches(isDisplayed()));
     }
 
     @After public void tearDown() {
