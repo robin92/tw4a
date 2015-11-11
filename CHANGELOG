@@ -3,4 +3,7 @@ next
 + [backend] reads data stored by taskwarrior
 + [backend] taskwarrior environment is prepared (binary, variables, rc)
 + [backend] inserting data to taskwarrior
++ [backend] supports changing task status to completed
++ [gui] displays tasks
++ [gui] complete task
 + ...
