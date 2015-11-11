@@ -3,7 +3,6 @@ package pl.rbolanowski.tw4a;
 import android.app.Application;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.widget.ListView;
 
 import java.io.File;
 
@@ -17,14 +16,15 @@ import pl.rbolanowski.tw4a.backend.taskwarrior.TaskwarriorBackendFactory;
 import pl.rbolanowski.tw4a.test.AndroidMockitoTestCase;
 
 import static android.support.test.espresso.Espresso.*;
-import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.action.ViewActions.longClick;
+import static android.support.test.espresso.action.ViewActions.*;
 import static android.support.test.espresso.assertion.ViewAssertions.*;
-import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
+import static android.support.test.espresso.matcher.RootMatchers.*;
 import static android.support.test.espresso.matcher.ViewMatchers.*;
 
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
+
+import static pl.rbolanowski.tw4a.test.matchers.Matchers.*;
 
 @RunWith(AndroidJUnit4.class)
 public class MainActivityTest extends AndroidMockitoTestCase {
@@ -93,10 +93,11 @@ public class MainActivityTest extends AndroidMockitoTestCase {
     }
 
     @Test public void listViewShowsTasks() {
-        final int listId = android.R.id.list;
-        onView(withId(listId)).check(matches(isDisplayed()));
-        ListView list = (ListView) mActivity.findViewById(listId);
-        assertEquals(mTasks.length, list.getChildCount());
+        onView(withId(android.R.id.list))
+            .check(matches(allOf(
+                isDisplayed(),
+                withListSize(mTasks.length)
+            )));
     }
 
     @Test public void contextMenuVisibleAferLongClick() {
