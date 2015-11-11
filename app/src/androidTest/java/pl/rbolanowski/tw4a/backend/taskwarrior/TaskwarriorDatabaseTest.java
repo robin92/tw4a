@@ -43,6 +43,23 @@ public class TaskwarriorDatabaseTest extends AndroidTestCase {
         verify(mTaskwarrior, atLeastOnce()).put(mTask.description);
     }
 
+    @Test(expected = Database.NotStoredException.class)
+    public void updatingTaskWithoutUuidThrowsException() throws Exception {
+        mDatabase.update(mTask);
+    }
+
+    @Test public void updatesTask() throws Exception {
+        mTask.uuid = "1234";
+        mTask.description = "updated!";
+
+        mDatabase.update(mTask);
+        verify(mTaskwarrior, atLeastOnce()).modify(mTask.uuid, mTask.description, Taskwarrior.TaskStatus.Pending);
+
+        mTask.done = true;
+        mDatabase.update(mTask);
+        verify(mTaskwarrior, atLeastOnce()).modify(mTask.uuid, mTask.description, Taskwarrior.TaskStatus.Completed);
+    }
+
     @Test public void selectsZeroTasksOnParsingError() throws Exception {
         when(mTaskwarrior.export()).thenReturn(new Taskwarrior.Output());
         when(mTranslator.decode(anyString())).thenThrow(Translator.ParserException.class);
@@ -57,6 +74,12 @@ public class TaskwarriorDatabaseTest extends AndroidTestCase {
     @Test public void selectsAllTasks() throws Exception {
         configure(mTask);
         assertEquals(3, mDatabase.select().length);
+    }
+
+    @Test public void selectsOnlyPendingTasks() throws Exception {
+        mTask.done = true;
+        configure(mTask);
+        assertEquals(0, mDatabase.select().length);
     }
 
     private Taskwarrior.Output makeOutput(String stdout) {

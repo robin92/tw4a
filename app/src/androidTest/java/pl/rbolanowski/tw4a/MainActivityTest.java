@@ -1,85 +1,65 @@
 package pl.rbolanowski.tw4a;
 
-import android.app.Application;
+import android.content.Context;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.widget.ListView;
 
 import java.io.File;
 
-import com.google.inject.AbstractModule;
 import org.junit.*;
 import org.junit.runner.RunWith;
-import roboguice.RoboGuice;
 
 import pl.rbolanowski.tw4a.backend.*;
 import pl.rbolanowski.tw4a.backend.taskwarrior.TaskwarriorBackendFactory;
 import pl.rbolanowski.tw4a.test.AndroidMockitoTestCase;
 
 import static android.support.test.espresso.Espresso.*;
-import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.action.ViewActions.longClick;
+import static android.support.test.espresso.action.ViewActions.*;
 import static android.support.test.espresso.assertion.ViewAssertions.*;
-import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
 import static android.support.test.espresso.matcher.ViewMatchers.*;
 
 import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.*;
+
+import static pl.rbolanowski.tw4a.test.matchers.Matchers.*;
 
 @RunWith(AndroidJUnit4.class)
 public class MainActivityTest extends AndroidMockitoTestCase {
 
-    private class Module extends AbstractModule {
-
-        @Override
-        protected void configure() {
-            bind(BackendFactory.class).toInstance(mFactoryMock);
-        }
-
-    }
+    private static final int TOTAL_TASK_COUNT = 3;
 
     @Rule public ActivityTestRule<MainActivity> mActivityRule = lazyActivityRule();
 
-    private Task[] mTasks = new Task[3];
-    private Database mDatabaseMock;
-    private BackendFactory mFactoryMock;
+    private Context mContext;
+    private BackendFactory mBackend;    // cant inject (no context yet)
     private MainActivity mActivity;
 
     private static ActivityTestRule<MainActivity> lazyActivityRule() {
         return new ActivityTestRule<>(MainActivity.class, false, false);
     }
 
-    private void overrideModules() {
-        Application app = (Application) getTargetContext().getApplicationContext();
-        RoboGuice.overrideApplicationInjector(app, new Module());
-    }
-
-    private void configureDatabase() {
-        mDatabaseMock = mock(Database.class);
-        when(mDatabaseMock.select()).thenReturn(mTasks);
-    }
-
-    private void configureFactory() {
-        BackendFactory factory = new TaskwarriorBackendFactory(getTargetContext());
-        mFactoryMock = mock(BackendFactory.class);
-        when(mFactoryMock.newConfigurator()).thenReturn(factory.newConfigurator());
-        when(mFactoryMock.newDatabase()).thenReturn(mDatabaseMock);
-    }
-
-    private void populateTasks() {
-        for (int i = 0; i < mTasks.length; i++) {
-            mTasks[i] = new Task();
-            mTasks[i].uuid = Integer.toString(i);
-            mTasks[i].description = "task" + Integer.toString(i);
-        }
-    }
-
-    @Before public void setUp() {
-        populateTasks();
-        configureDatabase();
-        configureFactory();
-        overrideModules();
+    @Before public void setUp() throws Exception {
+        mContext = getTargetContext();
+        createBackend();
+        configureBackend();
+        populateDatabase();
         startActivity();
+    }
+
+    private void createBackend() throws  Exception {
+        mBackend = new TaskwarriorBackendFactory(mContext);
+    }
+
+    private void configureBackend() throws Exception {
+        mBackend.newConfigurator().configure();
+    }
+
+    private void populateDatabase() throws Exception{
+        Database database = mBackend.newDatabase();
+        for (int i = 0; i < TOTAL_TASK_COUNT; i++) {
+            Task task = new Task();
+            task.description = String.format("dummy task, number %d", i);
+            database.insert(task);
+        }
     }
 
     private void startActivity() {
@@ -87,16 +67,12 @@ public class MainActivityTest extends AndroidMockitoTestCase {
         assertNotNull(mActivity);
     }
 
-    @Test public void activityLoadsData() {
-        onView(withId(android.R.id.progress)).check(matches(isEnabled()));
-        onView(withId(android.R.id.list)).check(matches(isDisplayed()));
-    }
-
     @Test public void listViewShowsTasks() {
-        final int listId = android.R.id.list;
-        onView(withId(listId)).check(matches(isDisplayed()));
-        ListView list = (ListView) mActivity.findViewById(listId);
-        assertEquals(mTasks.length, list.getChildCount());
+        onView(withId(android.R.id.list))
+            .check(matches(allOf(
+                isDisplayed(),
+                withListSize(TOTAL_TASK_COUNT)
+            )));
     }
 
     @Test public void contextMenuVisibleAferLongClick() {
@@ -105,20 +81,20 @@ public class MainActivityTest extends AndroidMockitoTestCase {
         onView(withText(R.string.menu_edit)).check(matches(isDisplayed()));
     }
 
-    @Test public void doneIsNotImplemented() {
+    @Test public void settingTaskAsDoneRemovesIt() {
         onData(anything()).inAdapterView(withId(android.R.id.list)).atPosition(0).perform(longClick());
         onView(withText(R.string.menu_done)).perform(click());
-        onView(withText(R.string.done_not_implemented)).inRoot(withDecorView(not(is(mActivity.getWindow().getDecorView())))).check(matches(isDisplayed()));
+        onView(withId(android.R.id.list)).check(matches(withListSize(TOTAL_TASK_COUNT - 1)));
     }
 
-    @After public void tearDown() {
-        assertResourceReady("task");
+    @After public void clearTaskData() {
+        clearDirectory(mContext.getFileStreamPath("taskdata"));
     }
 
-    private void assertResourceReady(String name) {
-        File file = mActivity.getFileStreamPath(name);
-        assertTrue("file " + file.getPath() + " doesn't exist", file.exists());
-        assertTrue("file " + file.getPath() + " not executable", file.canExecute());
+    private static void clearDirectory(File dir) {
+        for (String child : dir.list()) {
+            new File(dir, child).delete();
+        }
     }
 
 }

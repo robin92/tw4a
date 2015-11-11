@@ -3,6 +3,5 @@
     <string name="app_name">TW4A</string>
     <string name="menu_done">Done</string>
     <string name="menu_edit">Edit</string>
-    <string name="done_not_implemented">"Cannot change to 'Done' - not implemented yet</string>
-    <string name="edit_not_implemented">"Cannot edit - not implemented yet</string>
+    <string name="not_implemented">"Not implemented yet</string>
 </resources>

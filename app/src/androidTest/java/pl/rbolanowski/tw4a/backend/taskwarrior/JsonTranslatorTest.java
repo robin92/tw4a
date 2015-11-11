@@ -11,6 +11,7 @@ import pl.rbolanowski.tw4a.test.AndroidTestCase;
 public class JsonTranslatorTest extends AndroidTestCase {
 
     private static final String INPUT = "{\"id\":1,\"entry\":\"20151024T102451Z\",\"modified\":\"20151024T102451Z\",\"status\":\"pending\",\"uuid\":\"uuid-value\",\"urgency\":0,\"description\":\"some task\"}";
+    private static final String COMPLETED_TASK_INPUT = "{\"id\":1,\"status\":\"completed\",\"uuid\":\"uuid-value\",\"urgency\":0,\"description\":\"some task\"}";
 
     @Test(expected = NullPointerException.class)
     public void reportsErrorOnNullInput() throws Exception {
@@ -63,6 +64,10 @@ public class JsonTranslatorTest extends AndroidTestCase {
         Task task = decode(INPUT);
         assertEquals("uuid-value", task.uuid);
         assertEquals("some task", task.description);
+        assertFalse(task.done);
+
+        task = decode(COMPLETED_TASK_INPUT);
+        assertTrue(task.done);
     }
 
     private Task decode(String any) throws Exception {

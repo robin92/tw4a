@@ -4,6 +4,7 @@ public class Task {
 
     public String uuid;
     public String description;
+    public boolean done;
 
 }
 

@@ -1,24 +1,19 @@
 package pl.rbolanowski.tw4a;
 
-import android.content.Context;
-import android.os.AsyncTask;
+import android.os.*;
 import android.util.Log;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.MenuInflater;
-import android.view.View;
-import android.view.MenuItem;
-import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.ListView;
-import android.widget.Toast;
+import android.view.*;
+import android.widget.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import com.google.inject.Inject;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
+
+import static android.view.ContextMenu.ContextMenuInfo;
+import static android.widget.AdapterView.AdapterContextMenuInfo;
 
 import pl.rbolanowski.tw4a.backend.*;
 
@@ -29,49 +24,70 @@ public class MainActivity extends RoboActivity {
     @InjectView(android.R.id.list) private ListView mListView;
     @InjectView(android.R.id.progress) private View mLoadingView;
 
-    private TaskListAdapter mTaskListAdapter;
+    private TaskAdapter mTaskAdapter;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mTaskAdapter = new TaskAdapter(this, R.layout.task_list_element, new ArrayList<Task>());
+        mListView.setAdapter(mTaskAdapter);
+        registerForContextMenu(mListView);
+    }
 
     @Override
     public void onStart() {
         super.onStart();
-        mTaskListAdapter = new TaskListAdapter(this, R.layout.task_list_element, new ArrayList<Task>());
-        mListView.setAdapter(mTaskListAdapter);
-        registerForContextMenu(mListView);
         configureBackendAsync();
     }
 
     private void configureBackendAsync() {
-        new ConfigureBackendAsyncTask(mBackend, mLoadingView, mListView, mTaskListAdapter).execute();
+        new ConfigureBackendAsyncTask(mBackend, mLoadingView, mListView, mTaskAdapter).execute();
     }
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.context_menu, menu);
+        getMenuInflater().inflate(R.menu.context_menu, menu);
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-        Toast toast;
-        String text;
         switch (item.getItemId()) {
             case R.id.menu_done:
-                text = getString(R.string.done_not_implemented);
-                toast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
-                toast.show();
-                text = mTaskListAdapter.getItem(info.position).description;
-                toast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
-                toast.show();
+                handleCompleteTask(info);
                 return true;
+
             case R.id.menu_edit:
-                text = mTaskListAdapter.getItem(info.position).description + ": " + getString(R.string.edit_not_implemented);
-                toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
-                toast.show();
+                handleNotImplementedFeature();
                 return true;
+
+            default: return true;
         }
-        return true;
     }
+
+    private void handleCompleteTask(AdapterContextMenuInfo info) {
+        Database database = mBackend.newDatabase();
+        completeTask(database, mTaskAdapter.getItem(info.position));
+        mTaskAdapter.clear();
+        mTaskAdapter.addAll(database.select());
+        mTaskAdapter.notifyDataSetChanged();
+    }
+
+    private void completeTask(Database database, Task task) {
+        try {
+            task.done = true;
+            database.update(task);
+        }
+        catch (Database.NotStoredException e) {
+            task.done = false;
+            throw new RuntimeException(e.toString());
+        }
+    }
+
+    private void handleNotImplementedFeature() {
+        Toast.makeText(this, R.string.not_implemented, Toast.LENGTH_SHORT).show();
+    }
+
 }
 
 abstract class ResourceLoadingAsyncTask extends AsyncTask<Void, Void, Void> {
@@ -98,9 +114,9 @@ class ConfigureBackendAsyncTask extends ResourceLoadingAsyncTask {
 
     private Configurator mConfigurator;
     private Database mDatabase;
-    private TaskListAdapter mTaskListAdapter;
+    private TaskAdapter mTaskListAdapter;
 
-    public ConfigureBackendAsyncTask(BackendFactory backend, View loadingView, View readyView, TaskListAdapter taskListAdapter) {
+    public ConfigureBackendAsyncTask(BackendFactory backend, View loadingView, View readyView, TaskAdapter taskListAdapter) {
         super(loadingView, readyView);
         mConfigurator = backend.newConfigurator();
         mDatabase = backend.newDatabase();
@@ -126,8 +142,7 @@ class ConfigureBackendAsyncTask extends ResourceLoadingAsyncTask {
     }
 
     private void populateList() {
-        Task[] values = mDatabase.select();
-        mTaskListAdapter.addAll(values);
+        mTaskListAdapter.addAll(mDatabase.select());
     }
 
 }

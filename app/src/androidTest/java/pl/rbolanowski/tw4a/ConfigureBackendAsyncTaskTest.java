@@ -22,12 +22,12 @@ public class ConfigureBackendAsyncTaskTest extends AndroidMockitoTestCase {
     private View mReadyView = new ListView(getTargetContext());
     private Configurator mConfigurator;
     private Database mDatabase;
-    private TaskListAdapter mTaskListAdapter;
+    private TaskAdapter mTaskListAdapter;
     private ConfigureBackendAsyncTask mTask;
 
     @Before public void setUp() throws Exception {
         configureMocks();
-        mTaskListAdapter = new TaskListAdapter(getTargetContext(), R.layout.task_list_element, new ArrayList<Task>());
+        mTaskListAdapter = new TaskAdapter(getTargetContext(), R.layout.task_list_element, new ArrayList<Task>());
         mTask = new ConfigureBackendAsyncTask(makeFactory(), mLoadingView, mReadyView, mTaskListAdapter);
     }
 

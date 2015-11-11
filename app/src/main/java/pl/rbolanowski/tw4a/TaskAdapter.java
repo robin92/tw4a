@@ -9,12 +9,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class TaskListAdapter extends ArrayAdapter<Task> {
+public class TaskAdapter extends ArrayAdapter<Task> {
 
     private Context mContext;
     private int mResource;
 
-    public TaskListAdapter(Context context, int resource, ArrayList<Task> tasks) {
+    public TaskAdapter(Context context, int resource, ArrayList<Task> tasks) {
         super(context, resource, tasks);
         this.mContext = context;
         this.mResource = resource;
