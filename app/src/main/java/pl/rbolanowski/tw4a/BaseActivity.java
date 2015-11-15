@@ -46,12 +46,12 @@ import com.google.inject.Key;
 import com.google.inject.internal.util.Stopwatch;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -81,7 +81,7 @@ import android.view.View;
  *
  * @author Mike Burton
  */
-public class BaseActivity extends Activity implements RoboContext {
+public class BaseActivity extends AppCompatActivity implements RoboContext {
     protected EventManager eventManager;
     protected HashMap<Key<?>,Object> scopedObjects = new HashMap<Key<?>, Object>();
 
@@ -99,7 +99,7 @@ public class BaseActivity extends Activity implements RoboContext {
         stopwatch.resetAndLog("RoboActivity inject members without views");
         super.onCreate(savedInstanceState);
         stopwatch.resetAndLog("RoboActivity super onCreate");
-        eventManager.fire(new OnCreateEvent<Activity>(this,savedInstanceState));
+        eventManager.fire(new OnCreateEvent<AppCompatActivity>(this,savedInstanceState));
         stopwatch.resetAndLog("RoboActivity fire event");
     }
 
@@ -118,7 +118,7 @@ public class BaseActivity extends Activity implements RoboContext {
     @Override
     protected void onStart() {
         super.onStart();
-        eventManager.fire(new OnStartEvent<Activity>(this));
+        eventManager.fire(new OnStartEvent<AppCompatActivity>(this));
     }
 
     @Override
@@ -151,7 +151,7 @@ public class BaseActivity extends Activity implements RoboContext {
     @Override
     protected void onDestroy() {
         try {
-            eventManager.fire(new OnDestroyEvent<Activity>(this));
+            eventManager.fire(new OnDestroyEvent<AppCompatActivity>(this));
         } finally {
             try {
                 RoboGuice.destroyInjector(this);
@@ -165,7 +165,7 @@ public class BaseActivity extends Activity implements RoboContext {
     public void onConfigurationChanged(Configuration newConfig) {
         final Configuration currentConfig = getResources().getConfiguration();
         super.onConfigurationChanged(newConfig);
-        eventManager.fire(new OnConfigurationChangedEvent<Activity>(this,currentConfig, newConfig));
+        eventManager.fire(new OnConfigurationChangedEvent<AppCompatActivity>(this,currentConfig, newConfig));
     }
 
     @Override
