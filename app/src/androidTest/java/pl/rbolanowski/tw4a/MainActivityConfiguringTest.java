@@ -25,6 +25,7 @@ public class MainActivityConfiguringTest extends AndroidTestCase {
 
     @Before public void setUp() throws Exception {
         startActivity();
+        unlockScreen(mActivity);
     }
 
     private void startActivity() {

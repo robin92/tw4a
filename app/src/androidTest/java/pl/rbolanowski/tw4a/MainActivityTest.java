@@ -43,6 +43,7 @@ public class MainActivityTest extends AndroidMockitoTestCase {
         configureBackend();
         populateDatabase();
         startActivity();
+        unlockScreen(mActivity);
     }
 
     private void createBackend() throws  Exception {
