@@ -18,7 +18,7 @@ import static android.widget.AdapterView.AdapterContextMenuInfo;
 import pl.rbolanowski.tw4a.backend.*;
 
 @ContentView(R.layout.main)
-public class MainActivity extends RoboActivity {
+public class MainActivity extends BaseActivity {
 
     @Inject private BackendFactory mBackend;
     @InjectView(android.R.id.list) private ListView mListView;
