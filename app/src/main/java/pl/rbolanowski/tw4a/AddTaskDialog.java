@@ -16,13 +16,16 @@ import pl.rbolanowski.tw4a.backend.*;
 
 public class AddTaskDialog extends RoboDialogFragment {
 
-    @Inject private BackendFactory mBackend;
-    private TaskAdapter mTaskAdapter;
+    public static interface OnTaskCreatedListener {
 
-    static public AddTaskDialog newInstance(TaskAdapter taskAdapter) {
-        AddTaskDialog instance = new AddTaskDialog();
-        instance.mTaskAdapter = taskAdapter;
-        return instance;
+        void onTaskCreated(Task task);
+
+    }
+
+    private OnTaskCreatedListener mOnTaskCreatedListener;
+
+    public void setOnTaskCreatedListener(OnTaskCreatedListener listener) {
+        mOnTaskCreatedListener = listener;
     }
 
     @Override
@@ -45,16 +48,8 @@ public class AddTaskDialog extends RoboDialogFragment {
                 EditText description = (EditText) view.findViewById(R.id.new_task_description);
                 Task task = new Task();
                 task.description = description.getText().toString();
-                task.done = false;
-                Database database = mBackend.newDatabase();
-                try {
-                    database.insert(task);
-                    mTaskAdapter.clear();
-                    mTaskAdapter.addAll(database.select());
-                } catch (Database.AlreadyStoredException e) {
-                    // IMPOSSIBLE CASE
-                } catch (Database.IncompleteArgumentException e) {
-                    // IMPOSSIBLE CASE
+                if (mOnTaskCreatedListener != null) {
+                    mOnTaskCreatedListener.onTaskCreated(task);
                 }
             }
         });

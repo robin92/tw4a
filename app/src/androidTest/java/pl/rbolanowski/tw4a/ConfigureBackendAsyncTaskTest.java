@@ -2,7 +2,6 @@ package pl.rbolanowski.tw4a;
 
 import android.view.View;
 import android.widget.ListView;
-import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,30 +18,17 @@ public class ConfigureBackendAsyncTaskTest extends AndroidMockitoTestCase {
     private static class FakeException extends Configurator.BackendException {}
 
     private View mLoadingView = new View(getTargetContext());
-    private View mReadyView = new ListView(getTargetContext());
+    private View mReadyView = new View(getTargetContext());
     private Configurator mConfigurator;
-    private Database mDatabase;
-    private TaskAdapter mTaskListAdapter;
     private ConfigureBackendAsyncTask mTask;
 
     @Before public void setUp() throws Exception {
         configureMocks();
-        mTaskListAdapter = new TaskAdapter(getTargetContext(), R.layout.task_list_element, new ArrayList<Task>());
-        mTask = new ConfigureBackendAsyncTask(makeFactory(), mLoadingView, mReadyView, mTaskListAdapter);
+        mTask = new ConfigureBackendAsyncTask(mConfigurator, mLoadingView, mReadyView);
     }
 
     private void configureMocks() {
         mConfigurator = mock(Configurator.class);
-
-        mDatabase = mock(Database.class);
-        when(mDatabase.select()).thenReturn(new Task[0]);
-    }
-
-    private BackendFactory makeFactory() {
-        BackendFactory factory = mock(BackendFactory.class);
-        when(factory.newConfigurator()).thenReturn(mConfigurator);
-        when(factory.newDatabase()).thenReturn(mDatabase);
-        return factory;
     }
 
     @Test(expected = IllegalStateException.class)
@@ -60,6 +46,13 @@ public class ConfigureBackendAsyncTaskTest extends AndroidMockitoTestCase {
         setUpViews();
         mTask.onPostExecute(null);
         assertVisibilityChanged();
+    }
+
+    @Test public void callsScheduledAction() throws Exception {
+        Runnable runnable = mock(Runnable.class);
+        mTask.schedule(runnable);
+        mTask.onPostExecute(null);
+        verify(runnable, atLeastOnce()).run();
     }
 
     @Test public void multipleCallSetsReadyViewVisible() throws Exception {

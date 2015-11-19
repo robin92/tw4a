@@ -20,6 +20,10 @@ android {
     lintOptions {
         disable 'LongLogTag'
     }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
