@@ -82,6 +82,26 @@ public class MainActivityTest extends AndroidMockitoTestCase {
         onView(withText(R.string.menu_edit)).check(matches(isDisplayed()));
     }
 
+    @Test public void enableDisableButtonsInDialog() {
+        onView(withId(R.id.add_button)).perform(click());
+        onView(withId(R.id.new_task_description)).check(matches(isDisplayed()));
+        onView(withText(R.string.cancel)).check(matches(isEnabled()));
+        onView(withText(R.string.add)).check(matches(not(isEnabled())));
+        onView(withId(R.id.new_task_description)).perform(click()).perform(typeText(" "));
+        onView(withText(R.string.add)).check(matches(not(isEnabled())));
+        onView(withId(R.id.new_task_description)).perform(typeText("A"));
+        onView(withText(R.string.add)).check(matches(isEnabled()));
+        onView(withId(R.id.new_task_description)).perform(clearText());
+        onView(withText(R.string.add)).check(matches(not(isEnabled())));
+    }
+
+    @Test public void afterAddNewTaskListIsLonger() {
+        onView(withId(R.id.add_button)).perform(click());
+        onView(withId(R.id.new_task_description)).perform(typeText("Task n"));
+        onView(withText(R.string.add)).perform(click());
+        onView(withId(android.R.id.list)).check(matches(withListSize(TOTAL_TASK_COUNT + 1)));
+    }
+
     @Test public void settingTaskAsDoneRemovesIt() {
         onData(anything()).inAdapterView(withId(android.R.id.list)).atPosition(0).perform(longClick());
         onView(withText(R.string.menu_done)).perform(click());
