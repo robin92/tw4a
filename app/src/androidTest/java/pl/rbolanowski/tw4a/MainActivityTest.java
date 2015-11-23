@@ -13,7 +13,8 @@ import pl.rbolanowski.tw4a.backend.*;
 import pl.rbolanowski.tw4a.backend.taskwarrior.TaskwarriorBackendFactory;
 import pl.rbolanowski.tw4a.test.AndroidMockitoTestCase;
 
-import static android.support.test.espresso.Espresso.*;
+import static android.support.test.espresso.Espresso.onData;
+import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.*;
 import static android.support.test.espresso.assertion.ViewAssertions.*;
 import static android.support.test.espresso.matcher.ViewMatchers.*;
@@ -80,6 +81,28 @@ public class MainActivityTest extends AndroidMockitoTestCase {
         onData(anything()).inAdapterView(withId(android.R.id.list)).atPosition(0).perform(longClick());
         onView(withText(R.string.menu_done)).check(matches(isDisplayed()));
         onView(withText(R.string.menu_edit)).check(matches(isDisplayed()));
+    }
+
+    @Test public void enableDisableButtonsInDialog() {
+        onView(withId(R.id.add_button)).perform(click());
+        onView(withText(R.string.cancel)).check(matches(isEnabled()));
+        onView(withText(R.string.add)).check(matches(not(isEnabled())));
+
+        onView(withId(R.id.new_task_description)).perform(click(), typeText(" "));
+        onView(withText(R.string.add)).check(matches(not(isEnabled())));
+
+        onView(withId(R.id.new_task_description)).perform(typeText("A"));
+        onView(withText(R.string.add)).check(matches(isEnabled()));
+
+        onView(withId(R.id.new_task_description)).perform(clearText());
+        onView(withText(R.string.add)).check(matches(not(isEnabled())));
+    }
+
+    @Test public void afterAddNewTaskListIsLonger() {
+        onView(withId(R.id.add_button)).perform(click());
+        onView(withId(R.id.new_task_description)).perform(typeText("Task n"), closeSoftKeyboard());
+        onView(withText(R.string.add)).perform(click());
+        onView(withId(android.R.id.list)).check(matches(withListSize(TOTAL_TASK_COUNT + 1)));
     }
 
     @Test public void settingTaskAsDoneRemovesIt() {

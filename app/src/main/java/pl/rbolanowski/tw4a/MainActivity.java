@@ -2,6 +2,8 @@ package pl.rbolanowski.tw4a;
 
 import android.os.*;
 import android.util.Log;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.FragmentActivity;
 import android.view.*;
 import android.widget.*;
 
@@ -21,8 +23,10 @@ import pl.rbolanowski.tw4a.backend.*;
 public class MainActivity extends BaseActivity {
 
     @Inject private BackendFactory mBackend;
-    @InjectView(android.R.id.list) private ListView mListView;
+    @InjectView(R.id.content) private ViewGroup mContent;
     @InjectView(android.R.id.progress) private View mLoadingView;
+    @InjectView(R.id.add_button) private FloatingActionButton mAddNewTaskButton;
+    @InjectView(android.R.id.list) private ListView mListView;
 
     private TaskAdapter mTaskAdapter;
 
@@ -32,6 +36,13 @@ public class MainActivity extends BaseActivity {
         mTaskAdapter = new TaskAdapter(this, R.layout.task_list_element, new ArrayList<Task>());
         mListView.setAdapter(mTaskAdapter);
         registerForContextMenu(mListView);
+        mAddNewTaskButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg) {
+                AddTaskDialog dialog = AddTaskDialog.newInstance(mTaskAdapter);
+                dialog.show(getSupportFragmentManager(), "Add new task");
+            }
+        });
     }
 
     @Override
@@ -41,7 +52,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void configureBackendAsync() {
-        new ConfigureBackendAsyncTask(mBackend, mLoadingView, mListView, mTaskAdapter).execute();
+        new ConfigureBackendAsyncTask(mBackend, mLoadingView, mContent, mTaskAdapter).execute();
     }
 
     @Override

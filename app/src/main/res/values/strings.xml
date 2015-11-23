@@ -3,5 +3,9 @@
     <string name="app_name">TW4A</string>
     <string name="menu_done">Done</string>
     <string name="menu_edit">Edit</string>
-    <string name="not_implemented">"Not implemented yet</string>
+    <string name="not_implemented">Not implemented yet</string>
+    <string name="description">Description</string>
+    <string name="add">Add</string>
+    <string name="cancel">Cancel</string>
+    <string name="add_task_dialog_header">New Task</string>
 </resources>
