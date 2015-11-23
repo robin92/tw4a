@@ -13,7 +13,8 @@ import pl.rbolanowski.tw4a.backend.*;
 import pl.rbolanowski.tw4a.backend.taskwarrior.TaskwarriorBackendFactory;
 import pl.rbolanowski.tw4a.test.AndroidMockitoTestCase;
 
-import static android.support.test.espresso.Espresso.*;
+import static android.support.test.espresso.Espresso.onData;
+import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.*;
 import static android.support.test.espresso.assertion.ViewAssertions.*;
 import static android.support.test.espresso.matcher.ViewMatchers.*;
@@ -87,7 +88,7 @@ public class MainActivityTest extends AndroidMockitoTestCase {
         onView(withText(R.string.cancel)).check(matches(isEnabled()));
         onView(withText(R.string.add)).check(matches(not(isEnabled())));
 
-        onView(withId(R.id.new_task_description)).perform(click()).perform(typeText(" "));
+        onView(withId(R.id.new_task_description)).perform(click(), typeText(" "));
         onView(withText(R.string.add)).check(matches(not(isEnabled())));
 
         onView(withId(R.id.new_task_description)).perform(typeText("A"));
@@ -99,7 +100,7 @@ public class MainActivityTest extends AndroidMockitoTestCase {
 
     @Test public void afterAddNewTaskListIsLonger() {
         onView(withId(R.id.add_button)).perform(click());
-        onView(withId(R.id.new_task_description)).perform(click()).perform(typeText("Task n"));
+        onView(withId(R.id.new_task_description)).perform(typeText("Task n"), closeSoftKeyboard());
         onView(withText(R.string.add)).perform(click());
         onView(withId(android.R.id.list)).check(matches(withListSize(TOTAL_TASK_COUNT + 1)));
     }
