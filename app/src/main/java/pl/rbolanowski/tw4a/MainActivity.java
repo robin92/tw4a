@@ -23,7 +23,7 @@ import pl.rbolanowski.tw4a.backend.*;
 public class MainActivity extends BaseActivity {
 
     @Inject private BackendFactory mBackend;
-    @InjectView(R.id.hiddenView) private ViewGroup mHiddenViews;
+    @InjectView(R.id.content) private ViewGroup mContent;
     @InjectView(android.R.id.progress) private View mLoadingView;
     @InjectView(R.id.add_button) private FloatingActionButton mAddNewTaskButton;
     @InjectView(android.R.id.list) private ListView mListView;
@@ -52,7 +52,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void configureBackendAsync() {
-        new ConfigureBackendAsyncTask(mBackend, mLoadingView, mHiddenViews, mTaskAdapter).execute();
+        new ConfigureBackendAsyncTask(mBackend, mLoadingView, mContent, mTaskAdapter).execute();
     }
 
     @Override

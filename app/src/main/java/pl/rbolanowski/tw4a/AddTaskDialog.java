@@ -1,13 +1,13 @@
 package pl.rbolanowski.tw4a;
 
-import android.os.Bundle;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.view.LayoutInflater;
-import android.widget.EditText;
-import android.view.View;
+import android.os.Bundle;
 import android.text.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
 
 import com.google.inject.Inject;
 import roboguice.fragment.*;
@@ -19,13 +19,9 @@ public class AddTaskDialog extends RoboDialogFragment {
     @Inject private BackendFactory mBackend;
     private TaskAdapter mTaskAdapter;
 
-    private void setAdapter(TaskAdapter taskAdapter){
-        mTaskAdapter = taskAdapter;
-    }
-
     static public AddTaskDialog newInstance(TaskAdapter taskAdapter) {
         AddTaskDialog instance = new AddTaskDialog();
-        instance.setAdapter(taskAdapter);
+        instance.mTaskAdapter = taskAdapter;
         return instance;
     }
 
