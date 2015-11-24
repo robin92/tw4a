@@ -1,8 +1,10 @@
 package pl.rbolanowski.tw4a;
 
 import android.content.Context;
+import android.support.test.espresso.ViewAction;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.widget.EditText;
 
 import java.io.File;
 
@@ -88,20 +90,18 @@ public class MainActivityTest extends AndroidMockitoTestCase {
         onView(withText(R.string.cancel)).check(matches(isEnabled()));
         onView(withText(R.string.add)).check(matches(not(isEnabled())));
 
-        onView(withId(R.id.new_task_description)).perform(click(), typeText(" "));
+        onView(withId(R.id.new_task_description)).perform(typeText(" "), closeSoftKeyboard());
         onView(withText(R.string.add)).check(matches(not(isEnabled())));
 
-        onView(withId(R.id.new_task_description)).perform(typeText("A"));
+        onView(withId(R.id.new_task_description)).perform(typeText("A"), closeSoftKeyboard());
         onView(withText(R.string.add)).check(matches(isEnabled()));
 
-        onView(withId(R.id.new_task_description)).perform(clearText());
+        onView(withId(R.id.new_task_description)).perform(clearText(), closeSoftKeyboard());
         onView(withText(R.string.add)).check(matches(not(isEnabled())));
     }
 
     @Test public void afterAddNewTaskListIsLonger() {
-        onView(withId(R.id.add_button)).perform(click());
-        onView(withId(R.id.new_task_description)).perform(typeText("Task n"), closeSoftKeyboard());
-        onView(withText(R.string.add)).perform(click());
+        addTaskWithDialog("task n");
         onView(withId(android.R.id.list)).check(matches(withListSize(TOTAL_TASK_COUNT + 1)));
     }
 
@@ -109,6 +109,27 @@ public class MainActivityTest extends AndroidMockitoTestCase {
         onData(anything()).inAdapterView(withId(android.R.id.list)).atPosition(0).perform(longClick());
         onView(withText(R.string.menu_done)).perform(click());
         onView(withId(android.R.id.list)).check(matches(withListSize(TOTAL_TASK_COUNT - 1)));
+    }
+
+    @Test public void searchWithActionBar() {
+        onView(withId(R.id.action_search)).perform(typeText("2"), submit());
+        onView(withId(android.R.id.list)).check(matches(withListSize(1)));
+
+        onView(isAssignableFrom(EditText.class)).perform(clearText(), submit(), closeSoftKeyboard());
+        onView(withId(android.R.id.list)).check(matches(withListSize(TOTAL_TASK_COUNT)));
+    }
+
+    @Test public void searchWithActionBarAfterAddingTask() {
+        final String description = "new task";
+        addTaskWithDialog(description);
+        onView(withId(R.id.action_search)).perform(typeText(description), submit(), closeSoftKeyboard());
+        onView(withId(android.R.id.list)).check(matches(withListSize(1)));
+    }
+
+    private static void addTaskWithDialog(String text) {
+        onView(withId(R.id.add_button)).perform(click());
+        onView(withId(R.id.new_task_description)).perform(typeText("new task"), closeSoftKeyboard());
+        onView(withText(R.string.add)).perform(click());
     }
 
     @After public void clearTaskData() {
@@ -121,4 +142,10 @@ public class MainActivityTest extends AndroidMockitoTestCase {
         }
     }
 
+    private static ViewAction submit() {
+        final int btnSubmit = 66;
+        return pressKey(btnSubmit);
+    }
+
 }
+

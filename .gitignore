@@ -32,4 +32,4 @@ proguard/
 
 # vim
 .*.swp
-
+.*.swo
