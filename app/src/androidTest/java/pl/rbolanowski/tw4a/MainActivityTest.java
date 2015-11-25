@@ -5,6 +5,7 @@ import android.support.test.espresso.ViewAction;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.widget.EditText;
+import android.content.pm.ActivityInfo;
 
 import java.io.File;
 
@@ -79,6 +80,17 @@ public class MainActivityTest extends AndroidMockitoTestCase {
             )));
     }
 
+    @Test public void changesOrientation() {
+        swapOrientation(Orientation.Portrait);
+        listViewShowsTasks();
+        swapOrientation(Orientation.Landscape);
+        listViewShowsTasks();
+    }
+
+    private void swapOrientation(Orientation orientation) {
+        mActivity.setRequestedOrientation(orientation.getRaw());
+    }
+
     @Test public void contextMenuVisibleAferLongClick() {
         onData(anything()).inAdapterView(withId(android.R.id.list)).atPosition(0).perform(longClick());
         onView(withText(R.string.menu_done)).check(matches(isDisplayed()));
@@ -145,6 +157,23 @@ public class MainActivityTest extends AndroidMockitoTestCase {
     private static ViewAction submit() {
         final int btnSubmit = 66;
         return pressKey(btnSubmit);
+    }
+
+}
+
+enum Orientation {
+
+    Portrait  (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT),
+    Landscape (ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
+    private int mRaw;
+
+    Orientation(int value) {
+        mRaw = value;
+    }
+
+    public int getRaw() {
+        return mRaw;
     }
 
 }

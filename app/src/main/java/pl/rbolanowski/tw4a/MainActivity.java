@@ -32,7 +32,7 @@ public class MainActivity extends BaseActivity {
                 public void run() {
                     FragmentManager manager = getSupportFragmentManager();
                     FragmentTransaction transaction = manager.beginTransaction();
-                    transaction.add(android.R.id.content, new TaskListFragment());
+                    transaction.replace(android.R.id.content, new TaskListFragment());
                     transaction.commit();
                 }
             })
