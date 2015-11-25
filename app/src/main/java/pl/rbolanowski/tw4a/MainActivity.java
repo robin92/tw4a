@@ -32,7 +32,7 @@ public class MainActivity extends BaseActivity {
                 public void run() {
                     FragmentManager manager = getSupportFragmentManager();
                     FragmentTransaction transaction = manager.beginTransaction();
-                    transaction.add(android.R.id.content, new TaskListFragment());
+                    transaction.replace(android.R.id.content, new TaskListFragment());
                     transaction.commit();
                 }
             })
@@ -53,8 +53,14 @@ abstract class ResourceLoadingAsyncTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPostExecute(Void someVoid) {
-        mLoadingView.setVisibility(View.GONE);
-        mReadyView.setVisibility(View.VISIBLE);
+        setVisibility(mLoadingView, View.GONE);
+        setVisibility(mReadyView, View.VISIBLE);
+    }
+
+    private static void setVisibility(View view, int value) {
+        if (view != null) {
+            view.setVisibility(value);
+        }
     }
 
 }
