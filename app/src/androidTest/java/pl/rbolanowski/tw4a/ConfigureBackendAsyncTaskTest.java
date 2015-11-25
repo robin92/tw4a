@@ -44,6 +44,16 @@ public class ConfigureBackendAsyncTaskTest extends AndroidMockitoTestCase {
 
     @Test public void changesLoadingAndReadyViewVisibility() throws Exception {
         setUpViews();
+        new ConfigureBackendAsyncTask(mConfigurator, null, null).onPostExecute(null);
+
+        new ConfigureBackendAsyncTask(mConfigurator, mLoadingView, null).onPostExecute(null);
+        assertEquals(View.GONE, mLoadingView.getVisibility());
+
+        setUpViews();
+        new ConfigureBackendAsyncTask(mConfigurator, null, mReadyView).onPostExecute(null);
+        assertEquals(View.VISIBLE, mReadyView.getVisibility());
+
+        setUpViews();
         mTask.onPostExecute(null);
         assertVisibilityChanged();
     }
