@@ -6,4 +6,6 @@ next
 + [backend] supports changing task status to completed
 + [gui] displays tasks
 + [gui] complete task
++ [gui] add new task
++ [gui] search for tasks by description
 + ...
