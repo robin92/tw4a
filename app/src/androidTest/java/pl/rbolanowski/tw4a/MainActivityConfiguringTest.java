@@ -9,8 +9,11 @@ import pl.rbolanowski.tw4a.test.AndroidTestCase;
 import java.io.File;
 
 import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.action.ViewActions.*;
+import static android.support.test.espresso.assertion.ViewAssertions.*;
 import static android.support.test.espresso.matcher.ViewMatchers.*;
+
+import static org.hamcrest.Matchers.*;
 
 @RunWith(AndroidJUnit4.class)
 public class MainActivityConfiguringTest extends AndroidTestCase {
@@ -34,8 +37,17 @@ public class MainActivityConfiguringTest extends AndroidTestCase {
     }
 
     @Test public void activityLoadsData() {
-        onView(withId(android.R.id.progress)).check(matches(isEnabled()));
-        onView(withId(android.R.id.list)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)));
+        onView(withId(android.R.id.progress)).check(matches(not(isDisplayed())));
+    }
+
+    @Test public void noTasksLoaded() {
+        onView(allOf(
+                withId(android.R.id.empty),
+                withText(R.string.list_empty)))
+            .check(matches(isDisplayed()));
+    }
+
+    @After public void resourceReady() {
         assertResourceReady("task");
     }
 

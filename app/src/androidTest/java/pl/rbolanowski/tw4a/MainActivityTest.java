@@ -131,6 +131,12 @@ public class MainActivityTest extends AndroidMockitoTestCase {
         onView(withId(android.R.id.list)).check(matches(withListSize(TOTAL_TASK_COUNT)));
     }
 
+    @Test public void searchWithNoResultsDisplaysEmptyView() {
+        onView(withId(android.R.id.empty)).check(matches(not(isDisplayed())));
+        onView(withId(R.id.action_search)).perform(typeText("not present"), submit(), closeSoftKeyboard());
+        onView(allOf(withId(android.R.id.empty), withText(R.string.list_empty))).check(matches(isDisplayed()));
+    }
+
     @Test public void searchWithActionBarAfterAddingTask() {
         final String description = "new task";
         addTaskWithDialog(description);
