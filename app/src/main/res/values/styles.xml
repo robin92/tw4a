@@ -4,5 +4,16 @@
         <item name="colorPrimary">@color/primary_500</item>
         <item name="colorPrimaryDark">@color/primary_600</item>
     </style>
+    <style name="TextPrimary" parent="@android:style/TextAppearance">
+        <item name="android:textSize">18sp</item>
+    </style>
+    <style name="ListElement">
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:paddingTop">10dp</item>
+    </style>
+    <style name="TextPrimary.ListElement">
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:paddingTop">10dp</item>
+    </style>
 </resources>
 

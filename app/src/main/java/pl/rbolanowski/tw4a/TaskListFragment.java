@@ -99,6 +99,7 @@ public class TaskListFragment
     }
 
     @Inject private BackendFactory mBackend;
+    @InjectView(android.R.id.empty) private View mEmptyView;
     @InjectView(R.id.add_button) private View mAddNewTaskButton;
 
     private ContextMenuHandler mContextMenu;
@@ -129,6 +130,7 @@ public class TaskListFragment
         mTasks = vectorOf(mBackend.newDatabase().select());
         mTaskAdapter = new TaskAdapter(getActivity(), R.layout.task_list_element, mTasks);
         setListAdapter(mTaskAdapter);
+        getListView().setEmptyView(mEmptyView);
     }
 
     private void registerContextMenu() {
