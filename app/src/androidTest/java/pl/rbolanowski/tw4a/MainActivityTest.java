@@ -93,8 +93,8 @@ public class MainActivityTest extends AndroidMockitoTestCase {
 
     @Test public void contextMenuVisibleAferLongClick() {
         onData(anything()).inAdapterView(withId(android.R.id.list)).atPosition(0).perform(longClick());
-        onView(withText(R.string.menu_done)).check(matches(isDisplayed()));
-        onView(withText(R.string.menu_edit)).check(matches(isDisplayed()));
+        onView(withText(R.string.done)).check(matches(isDisplayed()));
+        onView(withText(R.string.edit)).check(matches(isDisplayed()));
     }
 
     @Test public void enableDisableButtonsInDialog() {
@@ -119,7 +119,7 @@ public class MainActivityTest extends AndroidMockitoTestCase {
 
     @Test public void settingTaskAsDoneRemovesIt() {
         onData(anything()).inAdapterView(withId(android.R.id.list)).atPosition(0).perform(longClick());
-        onView(withText(R.string.menu_done)).perform(click());
+        onView(withText(R.string.done)).perform(click());
         onView(withId(android.R.id.list)).check(matches(withListSize(TOTAL_TASK_COUNT - 1)));
     }
 

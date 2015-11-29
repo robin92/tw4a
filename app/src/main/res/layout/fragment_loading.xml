@@ -4,10 +4,13 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-    <ViewGroup
-        android:id="@android:id/content"
+    <ProgressBar
+        android:id="@android:id/progress"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:layout_centerInParent="true"
         />
 </RelativeLayout>
+
 

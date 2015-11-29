@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:text="@string/list_empty"
-        style="@style/TextPrimary.ListElement"
+        style="@style/Text.Primary.ListElement"
         />
     <android.support.design.widget.CoordinatorLayout
         android:layout_width="fill_parent"

@@ -1,7 +1,5 @@
 package pl.rbolanowski.tw4a;
 
-import android.view.View;
-import android.widget.ListView;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,97 +11,48 @@ import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
+import static pl.rbolanowski.tw4a.ConfigureBackendAsyncTask.*;
+
 public class ConfigureBackendAsyncTaskTest {
 
     private static class FakeException extends Configurator.BackendException {}
 
-    // android objects do nothing in unit tests
-    private static class ViewFake extends View {
-
-        private int mVisibility;
-
-        public ViewFake() {
-            super(null);
-        }
-
-        @Override
-        public void setVisibility(int value) {
-            mVisibility = value;
-        }
-
-        @Override
-        public int getVisibility() {
-            return mVisibility;
-        }
-
-    }
-
-    private View mLoadingView = new ViewFake();
-    private View mReadyView = new ViewFake();
     private Configurator mConfigurator;
+    private ConfiguringFinishedListener mListener;
     private ConfigureBackendAsyncTask mTask;
 
     @Before public void setUp() throws Exception {
         configureMocks();
-        mTask = new ConfigureBackendAsyncTask(mConfigurator, mLoadingView, mReadyView);
+        mTask = new ConfigureBackendAsyncTask(mConfigurator);
     }
 
     private void configureMocks() {
         mConfigurator = mock(Configurator.class);
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void failureDuringConfigurationIsFatal() throws Exception {
-        doThrow(FakeException.class).when(mConfigurator).configure();
-        mTask.doInBackground();
+        mListener = mock(ConfiguringFinishedListener.class);
     }
 
     @Test public void configuresBackend() throws Exception {
-        mTask.doInBackground();
+        assertTrue(mTask.doInBackground());
         verify(mConfigurator, atLeastOnce()).configure();
     }
 
-    @Test public void changesLoadingAndReadyViewVisibility() throws Exception {
-        setUpViews();
-        new ConfigureBackendAsyncTask(mConfigurator, null, null).onPostExecute(null);
-
-        new ConfigureBackendAsyncTask(mConfigurator, mLoadingView, null).onPostExecute(null);
-        assertEquals(View.GONE, mLoadingView.getVisibility());
-
-        setUpViews();
-        new ConfigureBackendAsyncTask(mConfigurator, null, mReadyView).onPostExecute(null);
-        assertEquals(View.VISIBLE, mReadyView.getVisibility());
-
-        setUpViews();
-        mTask.onPostExecute(null);
-        assertVisibilityChanged();
+    @Test public void configuringBackendFails() throws Exception {
+        doThrow(FakeException.class).when(mConfigurator).configure();
+        assertFalse(mTask.doInBackground());
+        verify(mConfigurator, atLeastOnce()).configure();
     }
 
-    @Test public void callsScheduledAction() throws Exception {
-        Runnable runnable = mock(Runnable.class);
-        mTask.schedule(runnable);
-        mTask.onPostExecute(null);
-        verify(runnable, atLeastOnce()).run();
+    @Test public void configuringSuccessCallsListener() throws Exception {
+        mTask.setConfiguringFinishedListener(mListener);
+        mTask.onPostExecute(true);
+        verify(mListener, times(1)).onConfiguringSucceeded();
     }
 
-    @Test public void multipleCallSetsReadyViewVisible() throws Exception {
-        setUpViews();
-        mTask.onPostExecute(null);
-        mTask.onPostExecute(null);
-        assertVisibilityChanged();
-    }
-
-    private void setUpViews() {
-        mLoadingView.setVisibility(View.VISIBLE);
-        mReadyView.setVisibility(View.GONE);
-    }
-
-    private void assertVisibilityChanged() {
-        boolean loadingViewGone = mLoadingView.getVisibility() == View.GONE;
-        boolean readyViewVisible = mReadyView.getVisibility() == View.VISIBLE;
-        assumeTrue(loadingViewGone);
-        assumeTrue(readyViewVisible);
-        assertTrue(loadingViewGone && readyViewVisible);
+    @Test public void configuringFailureCallsListener() throws Exception {
+        mTask.setConfiguringFinishedListener(mListener);
+        mTask.onPostExecute(false);
+        verify(mListener, times(1)).onConfiguringFailed();
     }
 
 }
+
