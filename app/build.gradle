@@ -45,3 +45,14 @@ dependencies {
     androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
     androidTestCompile 'com.android.support.test.uiautomator:uiautomator-v18:2.1.2'
 }
+
+task grantAnimationScalePermission(type: Exec, dependsOn: 'installDebug') {
+    commandLine "${android.getSdkDirectory().getAbsolutePath()}/platform-tools/adb shell pm grant pl.rbolanowski.tw4a android.permission.SET_ANIMATION_SCALE".split(' ')
+}
+
+tasks.whenTaskAdded { task ->
+    if (task.name.startsWith('connected')) {
+        task.dependsOn grantAnimationScalePermission
+    }
+}
+
