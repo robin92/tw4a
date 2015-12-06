@@ -46,13 +46,25 @@ dependencies {
     androidTestCompile 'com.android.support.test.uiautomator:uiautomator-v18:2.1.2'
 }
 
-task grantAnimationScalePermission(type: Exec, dependsOn: 'installDebug') {
-    commandLine "${android.getSdkDirectory().getAbsolutePath()}/platform-tools/adb shell pm grant pl.rbolanowski.tw4a android.permission.SET_ANIMATION_SCALE".split(' ')
+task grantPermissions() {}
+
+def generateGrantPermissionTask(String... permissions) {
+    def adb = "${android.getSdkDirectory().getAbsolutePath()}/platform-tools/adb"
+    permissions.each { permissionName ->
+        def taskSuffix = permissionName
+            .replaceAll(/([._])([A-Z]+)/) { all, mark, upperCase -> '.' + upperCase.toLowerCase() } // .COM_ANDROID_LIB => .com.android.lib
+            .replaceAll(/(^|[.])(\w)/) { all, mark, letter -> letter.toUpperCase() }                // com.android.lib => ComAndroidLib
+        tasks.grantPermissions.dependsOn task("grant$taskSuffix", type:Exec, dependsOn: 'installDebug') {
+            commandLine "$adb shell pm grant pl.rbolanowski.tw4a $permissionName".split(' ')
+        }
+    }
 }
+
+generateGrantPermissionTask('android.permission.SET_ANIMATION_SCALE')
 
 tasks.whenTaskAdded { task ->
     if (task.name.startsWith('connected')) {
-        task.dependsOn grantAnimationScalePermission
+        task.dependsOn grantPermissions
     }
 }
 
