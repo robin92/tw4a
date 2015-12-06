@@ -2,11 +2,14 @@ package pl.rbolanowski.tw4a;
 
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import org.junit.*;
-import org.junit.runner.RunWith;
-import pl.rbolanowski.tw4a.test.AndroidTestCase;
+import android.view.View;
 
 import java.io.File;
+
+import org.junit.*;
+import org.junit.runner.RunWith;
+
+import pl.rbolanowski.tw4a.test.AndroidTestCase;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.*;
@@ -37,7 +40,8 @@ public class MainActivityConfiguringTest extends AndroidTestCase {
     }
 
     @Test public void activityLoadsData() {
-        onView(withId(android.R.id.progress)).check(matches(not(isDisplayed())));
+        onView(withId(android.R.id.list)).check(matches(not(isDisplayed())));
+        assertResourceReady("task");
     }
 
     @Test public void noTasksLoaded() {
@@ -45,10 +49,6 @@ public class MainActivityConfiguringTest extends AndroidTestCase {
                 withId(android.R.id.empty),
                 withText(R.string.list_empty)))
             .check(matches(isDisplayed()));
-    }
-
-    @After public void resourceReady() {
-        assertResourceReady("task");
     }
 
     private void assertResourceReady(String name) {

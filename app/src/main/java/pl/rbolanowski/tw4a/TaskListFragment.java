@@ -45,7 +45,7 @@ public class TaskListFragment
         public boolean onItemSelected(MenuItem item) {
             AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
             switch (item.getItemId()) {
-                case R.id.menu_done: return handleCompleteTask(info);
+                case R.id.done: return handleCompleteTask(info);
                 default:             return handleNotImplementedFeature();
             }
         }

@@ -1,8 +1,8 @@
 package pl.rbolanowski.tw4a;
 
 import android.os.AsyncTask;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+import android.os.Bundle;
+import android.support.v4.app.*;
 import android.util.Log;
 import android.view.View;
 
@@ -13,92 +13,101 @@ import roboguice.inject.InjectView;
 import pl.rbolanowski.tw4a.backend.*;
 
 @ContentView(R.layout.main)
-public class MainActivity extends BaseActivity {
+public class MainActivity
+    extends BaseActivity
+    implements
+        ConfigureBackendAsyncTask.ConfiguringFinishedListener,
+        ErrorFragment.OnRetryListener {
 
     @Inject private BackendFactory mBackend;
-    @InjectView(android.R.id.content) private View mContent;
-    @InjectView(android.R.id.progress) private View mLoadingView;
+    private LoadingFragment mLoadingFragment = new LoadingFragment();
+    private ErrorFragment mErrorFragment = new ErrorFragment();
+    private TaskListFragment mTaskListFragment = new TaskListFragment();
+
+    @Override
+    public void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
+        mErrorFragment.setOnRetryListener(this);
+    }
 
     @Override
     public void onStart() {
         super.onStart();
+        onRetry();
+    }
+
+    @Override
+    public void onConfiguringSucceeded() {
+        replaceContent(mTaskListFragment);
+    }
+
+    @Override
+    public void onConfiguringFailed() {
+        replaceContent(mErrorFragment);
+    }
+
+    @Override
+    public void onRetry() {
+        replaceContent(mLoadingFragment);
         configureBackendAsync();
     }
 
     private void configureBackendAsync() {
-        new ConfigureBackendAsyncTask(mBackend.newConfigurator(), mLoadingView, mContent)
-            .schedule(new Runnable() {
-                @Override
-                public void run() {
-                    FragmentManager manager = getSupportFragmentManager();
-                    FragmentTransaction transaction = manager.beginTransaction();
-                    transaction.replace(android.R.id.content, new TaskListFragment());
-                    transaction.commit();
-                }
-            })
-            .execute();
+        ConfigureBackendAsyncTask task = new ConfigureBackendAsyncTask(mBackend.newConfigurator());
+        task.setConfiguringFinishedListener(this);
+        task.execute();
+    }
+
+    private void replaceContent(Fragment fragment) {
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        transaction.replace(android.R.id.content, fragment);
+        transaction.commit();
     }
 
 }
 
-abstract class ResourceLoadingAsyncTask extends AsyncTask<Void, Void, Void> {
+class ConfigureBackendAsyncTask extends AsyncTask<Void, Void, Boolean> {
 
-    private View mLoadingView;
-    private View mReadyView;
+    public static interface ConfiguringFinishedListener {
+        
+        void onConfiguringSucceeded();
 
-    public ResourceLoadingAsyncTask(View loadingView, View readyView) {
-        mLoadingView = loadingView;
-        mReadyView = readyView;
+        void onConfiguringFailed();
+
     }
-
-    @Override
-    protected void onPostExecute(Void someVoid) {
-        setVisibility(mLoadingView, View.GONE);
-        setVisibility(mReadyView, View.VISIBLE);
-    }
-
-    private static void setVisibility(View view, int value) {
-        if (view != null) {
-            view.setVisibility(value);
-        }
-    }
-
-}
-
-class ConfigureBackendAsyncTask extends ResourceLoadingAsyncTask {
 
     private static final String LOG_TAG = "ConfigureBackendAsyncTask";
 
     private Configurator mConfigurator;
-    private Runnable mRunnable;
+    private ConfiguringFinishedListener mConfiguringListener;
 
-    public ConfigureBackendAsyncTask(Configurator configurator, View loadingView, View readyView) {
-        super(loadingView, readyView);
+    public ConfigureBackendAsyncTask(Configurator configurator) {
         mConfigurator = configurator;
     }
 
-    public ConfigureBackendAsyncTask schedule(Runnable runnable) {
-        mRunnable = runnable;
-        return this;
+    public void setConfiguringFinishedListener(ConfiguringFinishedListener listener) {
+        mConfiguringListener = listener;
     }
 
     @Override
-    protected Void doInBackground(Void... voids) {
+    protected Boolean doInBackground(Void... voids) {
+        boolean status = false;
         try {
             mConfigurator.configure();
+            status = true;
         }
         catch (Configurator.BackendException e) {
             Log.e(LOG_TAG, "configuring backend failed: " + e.toString());
-            throw new IllegalStateException();
         }
-        return null;
+        return status;
     }
 
     @Override
-    protected void onPostExecute(Void someVoid) {
-        super.onPostExecute(someVoid);   
-        if (mRunnable != null) {
-            mRunnable.run();
+    protected void onPostExecute(Boolean success) {
+        if (mConfiguringListener != null) {
+            if (success) mConfiguringListener.onConfiguringSucceeded();
+            else mConfiguringListener.onConfiguringFailed();
         }
     }
 

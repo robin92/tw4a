@@ -5,11 +5,11 @@ import android.view.*;
 
 import roboguice.fragment.RoboFragment;
 
-public class EmptyFragment extends RoboFragment {
+public class LoadingFragment extends RoboFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle bundle) {
-        return inflater.inflate(R.layout.fragment_empty, container, false);
+        return inflater.inflate(R.layout.fragment_loading, container, false);
     }
 
 }
