@@ -14,49 +14,71 @@ import roboguice.fragment.*;
 
 import pl.rbolanowski.tw4a.backend.*;
 
-public class AddTaskDialog extends RoboDialogFragment {
+public class TaskDialog extends RoboDialogFragment {
 
-    public static interface OnTaskCreatedListener {
+    public static interface OnTaskChangedListener {
 
-        void onTaskCreated(Task task);
+        void onTaskChanged(Task task);
 
     }
 
-    private OnTaskCreatedListener mOnTaskCreatedListener;
+    private OnTaskChangedListener mOnTaskChangedListener;
+    private Task mTask;
+    private boolean mEditDialog = false;
 
-    public void setOnTaskCreatedListener(OnTaskCreatedListener listener) {
-        mOnTaskCreatedListener = listener;
+    public void setOnTaskChangedListener(OnTaskChangedListener listener) {
+        mOnTaskChangedListener = listener;
     }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        if (getArguments() != null) {
+            mEditDialog = true;
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         final View view = inflater.inflate(R.layout.add_task_dialog, null);
-        builder.setView(view);
-        builder.setTitle(R.string.add_task_dialog_header);   
+        builder.setView(view);        
+        if (mEditDialog) {
+            mTask = getArguments().getParcelable("current task");
+            fillWithCurrentTask(view);
+            builder.setTitle(R.string.edit_task_dialog_header);  
+        }
+        else {
+           mTask = new Task();                
+           builder.setTitle(R.string.add_task_dialog_header);  
+        } 
         setButtons(builder, view);
         final AlertDialog dialog = builder.create();
-        buttonEnabling(dialog, view);
+        buttonEnabling(dialog, view);        
         return dialog;
     }
 
+    private void fillWithCurrentTask(View view) {
+        EditText description = (EditText) view.findViewById(R.id.new_task_description);
+        description.setText(mTask.description);
+        description.setSelection(description.getText().length());
+    }
+
     private void setButtons(AlertDialog.Builder builder, final View view) {
-        builder.setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
+        String positiveButtonName = getString(R.string.add);
+        if (mEditDialog) {
+            positiveButtonName = getString(R.string.save);
+        } 
+        builder.setPositiveButton(positiveButtonName, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
                 EditText description = (EditText) view.findViewById(R.id.new_task_description);
-                Task task = new Task();
-                task.description = description.getText().toString();
-                if (mOnTaskCreatedListener != null) {
-                    mOnTaskCreatedListener.onTaskCreated(task);
+                mTask.description = description.getText().toString();
+                if (mOnTaskChangedListener != null) {
+                    mOnTaskChangedListener.onTaskChanged(mTask);
                 }
             }
         });
 
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                AddTaskDialog.this.getDialog().cancel();
+                TaskDialog.this.getDialog().cancel();
             }
         });
 

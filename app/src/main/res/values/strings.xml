@@ -5,15 +5,17 @@
 
     <!-- generic words -->
     <string name="add">Add</string>
+    <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="description">Description</string>
     <string name="done">Done</string>
     <string name="edit">Edit</string>
 
     <!-- application specific -->
-    <string name="add_task_dialog_header">New task</string>
     <string name="configure_error_title">Could not configure application!</string>
     <string name="configure_error_description">Make sure you have Internet access and swype down to retry.</string>
+    <string name="add_task_dialog_header">New Task</string>
+    <string name="edit_task_dialog_header">Edit Task</string>
     <string name="list_empty">No pending tasks</string>
 </resources>
 
