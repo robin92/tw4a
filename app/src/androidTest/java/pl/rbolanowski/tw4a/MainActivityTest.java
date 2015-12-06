@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 import pl.rbolanowski.tw4a.backend.*;
 import pl.rbolanowski.tw4a.backend.taskwarrior.TaskwarriorBackendFactory;
 import pl.rbolanowski.tw4a.test.AndroidMockitoTestCase;
+import pl.rbolanowski.tw4a.test.AnimationDisabledRule;
 
 import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.Espresso.onView;
@@ -31,6 +32,7 @@ public class MainActivityTest extends AndroidMockitoTestCase {
 
     private static final int TOTAL_TASK_COUNT = 3;
 
+    @ClassRule public static AnimationDisabledRule mAnimationDisabled = new AnimationDisabledRule();
     @Rule public ActivityTestRule<MainActivity> mActivityRule = lazyActivityRule();
 
     private Context mContext;
