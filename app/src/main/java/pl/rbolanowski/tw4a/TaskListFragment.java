@@ -118,7 +118,6 @@ public class TaskListFragment
 
     private TaskAdapter mTaskAdapter;
     private Vector<Task> mTasks;
-    private Bundle mBundle;
 
     @Override
     public void onCreate(Bundle bundle) {

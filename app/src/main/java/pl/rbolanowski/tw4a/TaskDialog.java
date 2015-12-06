@@ -38,7 +38,7 @@ public class TaskDialog extends RoboDialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         final View view = inflater.inflate(R.layout.add_task_dialog, null);
-        builder.setView(view);        
+        builder.setView(view);
         if (mEditDialog) {
             mTask = getArguments().getParcelable("current task");
             fillWithCurrentTask(view);
@@ -46,8 +46,8 @@ public class TaskDialog extends RoboDialogFragment {
         }
         else {
            mTask = new Task();                
-           builder.setTitle(R.string.add_task_dialog_header);  
-        } 
+           builder.setTitle(R.string.add_task_dialog_header);
+        }
         setButtons(builder, view);
         final AlertDialog dialog = builder.create();
         buttonEnabling(dialog, view);        
