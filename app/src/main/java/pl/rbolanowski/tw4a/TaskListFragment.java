@@ -23,7 +23,7 @@ import static pl.rbolanowski.tw4a.backend.Database.*;
 public class TaskListFragment
     extends RoboListFragment
     implements
-        AddTaskDialog.OnTaskCreatedListener,
+        TaskDialog.OnTaskChangedListener,
         View.OnClickListener {
 
     private static final String LOG_TAG = TaskListFragment.class.getSimpleName();
@@ -46,7 +46,8 @@ public class TaskListFragment
             AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
             switch (item.getItemId()) {
                 case R.id.done: return handleCompleteTask(info);
-                default:             return handleNotImplementedFeature();
+                case R.id.edit: return handleEditTask(info);
+                default:        return handleNotImplementedFeature();
             }
         }
 
@@ -54,6 +55,17 @@ public class TaskListFragment
             completeTask((Task) mTaskAdapter.getItem(info.position));
             mTaskAdapter.notifyDataSetInvalidated();
             registerAdapter();
+            return true;
+        }
+        
+        private boolean handleEditTask(AdapterContextMenuInfo info) {
+            Task currentTask = (Task) mTaskAdapter.getItem(info.position);
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("current task", currentTask);
+            TaskDialog dialog = new TaskDialog();
+            dialog.setOnTaskChangedListener(TaskListFragment.this);
+            dialog.setArguments(bundle);
+            dialog.show(getActivity().getSupportFragmentManager(), "Add new task");
             return true;
         }
 
@@ -166,8 +178,15 @@ public class TaskListFragment
     }
 
     @Override
-    public void onTaskCreated(Task task) {
-        if (tryInsertTask(task, mBackend.newDatabase())) {
+    public void onTaskChanged(Task task) {
+        boolean result;
+        if (task.uuid == null) {
+            result = tryInsertTask(task, mBackend.newDatabase());
+        } else {
+            result = tryUpdateTask(task, mBackend.newDatabase());
+        }
+
+        if (result) {
             mTaskAdapter.notifyDataSetInvalidated();
             registerAdapter();
         }
@@ -184,14 +203,25 @@ public class TaskListFragment
         return false;
     }
 
+    private static boolean tryUpdateTask(Task task, Database database) {
+        try {
+            database.update(task);
+            return true;
+        }
+        catch (NotStoredException e) {
+            Log.e(LOG_TAG, e.toString());
+        }
+        return false;
+    }
+
     @Override
     public void onClick(View view) {
         showAddTaskDialog();
     }
 
     private void showAddTaskDialog() {
-        AddTaskDialog dialog = new AddTaskDialog();
-        dialog.setOnTaskCreatedListener(TaskListFragment.this);
+        TaskDialog dialog = new TaskDialog();
+        dialog.setOnTaskChangedListener(TaskListFragment.this);
         dialog.show(getActivity().getSupportFragmentManager(), "Add new task");
     }
 

@@ -112,6 +112,21 @@ public class MainActivityTest extends AndroidMockitoTestCase {
         onView(withText(R.string.add)).check(matches(not(isEnabled())));
     }
 
+    @Test public void editedTask() {
+        String description = "task X";
+        onData(anything()).inAdapterView(withId(android.R.id.list)).atPosition(0).perform(longClick());
+        onView(withText(R.string.edit)).perform(click());
+
+        onView(withId(R.id.new_task_description)).perform(clearText(), typeText(description), closeSoftKeyboard());
+        onView(withText(R.string.save)).perform(click());
+        
+        
+        onData(anything()).inAdapterView(withId(android.R.id.list))
+            .atPosition(0)
+            .onChildView(withId(android.R.id.text1))
+            .check(matches(withText(description)));
+    }
+
     @Test public void afterAddNewTaskListIsLonger() {
         addTaskWithDialog("task n");
         onView(withId(android.R.id.list)).check(matches(withListSize(TOTAL_TASK_COUNT + 1)));
