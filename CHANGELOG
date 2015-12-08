@@ -4,8 +4,12 @@ next
 + [backend] taskwarrior environment is prepared (binary, variables, rc)
 + [backend] inserting data to taskwarrior
 + [backend] supports changing task status to completed
++ [backend] taskwarrior binary is copied from APK to application internal storage
++ backend configuration failure is reported
 + [gui] displays tasks
++ [gui] displays information when no pending tasks
 + [gui] complete task
 + [gui] add new task
 + [gui] search for tasks by description
-+ ...
++ [gui] edit task's description
+
