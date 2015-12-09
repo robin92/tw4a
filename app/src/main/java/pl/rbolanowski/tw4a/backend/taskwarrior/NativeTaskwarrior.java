@@ -41,6 +41,7 @@ public class NativeTaskwarrior implements Taskwarrior {
 
     private void createEnvironment() {
         mEnvironment = new String[] {
+            String.format("LD_LIBRARY_PATH=%s", mConfig.getParentFile()),
             String.format("TASKRC=%s", mConfig.getAbsolutePath()),
             String.format("TASKDATA=%s", mDataDir.getAbsolutePath()),
         };
@@ -57,7 +58,7 @@ public class NativeTaskwarrior implements Taskwarrior {
     }
 
     @Override
-    public Output modify(@NonNull String uuid, String description, TaskStatus status) {
+    public Output modify(@NonNull String uuid, String description, InternalTask.Status status) {
         String args[] = new CommandBuilder(Command.Modify)
             .setFilter("uuid", uuid)
             .appendArg("status", status)

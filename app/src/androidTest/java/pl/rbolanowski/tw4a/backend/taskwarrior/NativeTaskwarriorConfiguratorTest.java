@@ -1,11 +1,9 @@
 package pl.rbolanowski.tw4a.backend.taskwarrior;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import java.io.*;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import pl.rbolanowski.tw4a.StreamUtil;
 import pl.rbolanowski.tw4a.backend.Configurator;
@@ -15,22 +13,22 @@ import static org.mockito.Mockito.*;
 
 public class NativeTaskwarriorConfiguratorTest extends AndroidMockitoTestCase {
 
-    private static final String BINARY_CONTENT = "hello world";
-
-    private TaskwarriorProvider mProvider;
     private NativeTaskwarriorConfigurator.Spec mSpec = new NativeTaskwarriorConfigurator.Spec();
+    private NativeTaskwarriorConfigurator.ResourceProvider mProvider;
     private Configurator mConfigurator;
     private StreamUtil mStreams = new StreamUtil();
 
     @Before public void setUp() throws Exception {
-        configureProvider();
         configureSpec();
+        mProvider = mock(NativeTaskwarriorConfigurator.ResourceProvider.class);
+        when(mProvider.list("usr/bin")).thenReturn(new String[] {"task"});
+        when(mProvider.list("usr/lib")).thenReturn(new String[] {"first", "second"});
+        when(mProvider.open(anyString())).thenReturn(new ByteArrayInputStream("content".getBytes()));
         mConfigurator = new NativeTaskwarriorConfigurator(getTargetContext(), mProvider, mSpec);
     }
 
     @After public void tearDown() throws Exception {
         Context context = getTargetContext();
-        deleteIfExists(context.getFileStreamPath(mSpec.binary));
         deleteIfExists(context.getFileStreamPath(mSpec.config));
         deleteIfExists(context.getFileStreamPath(mSpec.dataDir));
     }
@@ -41,44 +39,25 @@ public class NativeTaskwarriorConfiguratorTest extends AndroidMockitoTestCase {
     }
 
     private void configureSpec() {
-        mSpec.binary = "dummyBinary";
         mSpec.config = "dummyConfig";
         mSpec.dataDir = "dummyDirectory";
-    }
-
-    private void configureProvider() throws Exception {
-        mProvider = mock(TaskwarriorProvider.class);
-        when(mProvider.getInputStream())
-            .thenReturn(new ByteArrayInputStream(BINARY_CONTENT.getBytes()));
-    }
-
-    @Test(expected = Configurator.BackendException.class)
-    public void downloadingBackendBinaryFailureHandling() throws Exception {
-        reset(mProvider);
-        when(mProvider.getInputStream()).thenThrow(IOException.class);
-        mConfigurator.configure();
     }
 
     @Test(expected = Configurator.BackendException.class)
     public void openingInternalStorageFailureHandling() throws Exception {
         Context context = mock(Context.class);
+        when(context.getFileStreamPath(anyString())).thenReturn(createFile("any"));
         when(context.getFileStreamPath(mSpec.binary)).thenThrow(IOException.class);
         mConfigurator = new NativeTaskwarriorConfigurator(context, mProvider, mSpec);
         mConfigurator.configure();
     }
 
-    @Test public void downloadsBackendBinary() throws Exception {
+    @Test public void createsAndConfiguresBinary() throws Exception {
+        final String binary = "task";
         mConfigurator.configure();
-        assertFileExists(mSpec.binary);
-        assertCanExecute(mSpec.binary);
-        assertArrayEquals(BINARY_CONTENT.getBytes(), readFile(mSpec.binary));
-    }
-
-    @Test public void skipsDownloadingWhenBackendAlreadyThere() throws Exception {
-        createFile(mSpec.binary);
-        mConfigurator.configure();
-        verifyZeroInteractions(mProvider);
-        assertCanExecute(mSpec.binary);
+        assertFileExists(binary);
+        assertCanExecute(binary);
+        assertTrue(readFile(binary).length > 0);
     }
 
     @Test public void createsRcFile() throws Exception {
@@ -89,7 +68,7 @@ public class NativeTaskwarriorConfiguratorTest extends AndroidMockitoTestCase {
     @Test(expected = Configurator.BackendException.class)
     public void reportsErrorOnCreatingRcFile() throws Exception {
         Context context = mock(Context.class);
-        when(context.getFileStreamPath(mSpec.binary)).thenReturn(createFile(mSpec.binary));
+        when(context.getFileStreamPath(anyString())).thenReturn(createFile("any"));
         when(context.getFileStreamPath(mSpec.config)).thenThrow(IOException.class);
         mConfigurator = new NativeTaskwarriorConfigurator(context, mProvider, mSpec);
         mConfigurator.configure();
@@ -108,15 +87,17 @@ public class NativeTaskwarriorConfiguratorTest extends AndroidMockitoTestCase {
     }
 
     @Test public void runsSeveralTimesInRow() throws Exception {
-        downloadsBackendBinary();
-        downloadsBackendBinary();
-        downloadsBackendBinary();
-        downloadsBackendBinary();
+        createsAndConfiguresBinary();
+        createsAndConfiguresBinary();
+        createsAndConfiguresBinary();
+        createsAndConfiguresBinary();
     }
 
     private File createFile(String name) throws Exception {
         File file = getTargetContext().getFileStreamPath(name);
-        assertTrue(file.createNewFile());
+        if (!file.exists()) {
+            assertTrue(file.createNewFile());
+        }
         return file;
     }
 
