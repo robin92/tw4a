@@ -1,5 +1,9 @@
 next
 ================================================================================
++ ...
+
+0.1.0
+================================================================================
 + [backend] reads data stored by taskwarrior
 + [backend] taskwarrior environment is prepared (binary, variables, rc)
 + [backend] inserting data to taskwarrior
@@ -12,4 +16,3 @@ next
 + [gui] add new task
 + [gui] search for tasks by description
 + [gui] edit task's description
-
