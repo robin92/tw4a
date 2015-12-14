@@ -10,6 +10,7 @@ import org.junit.*;
 import org.junit.runner.RunWith;
 
 import pl.rbolanowski.tw4a.test.AndroidTestCase;
+import pl.rbolanowski.tw4a.test.AnimationDisabledRule;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.*;
@@ -21,6 +22,7 @@ import static org.hamcrest.Matchers.*;
 @RunWith(AndroidJUnit4.class)
 public class MainActivityConfiguringTest extends AndroidTestCase {
 
+    @ClassRule public static AnimationDisabledRule mAnimationDisabled = new AnimationDisabledRule();
     @Rule public ActivityTestRule<MainActivity> mActivityRule = lazyActivityRule();
 
     private MainActivity mActivity;
