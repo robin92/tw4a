@@ -1,8 +1,10 @@
 package pl.rbolanowski.tw4a.backend.taskwarrior;
 
 import android.content.Context;
-
+import java.io.IOException;
+import java.io.InputStream;
 import com.google.inject.Inject;
+
 import pl.rbolanowski.tw4a.backend.*;
 
 public class TaskwarriorBackendFactory implements BackendFactory {
@@ -11,18 +13,48 @@ public class TaskwarriorBackendFactory implements BackendFactory {
     private static final String TASKWARRIOR_RC = "taskrc";
     private static final String TASKWARRIOR_DATADIR = "taskdata";
 
+    private class AssetResourceProvider implements NativeTaskwarriorConfigurator.ResourceProvider {
+
+        @Override
+        public String[] list(String dir) {
+            String[] elements = new String[0];
+            try {
+                elements = mContext.getAssets().list(dir);
+            }
+            catch (IOException e) {
+                // not relevant
+            }
+            finally {
+                return elements;
+            }
+        }
+
+        @Override
+        public InputStream open(String name) {
+            InputStream stream = null;
+            try {
+                stream = mContext.getAssets().open(name);
+            }
+            catch (IOException e) {
+                // not relevant
+            }
+            finally {
+                return stream;
+            }
+        }
+
+    }
+
     private Context mContext;
-    private TaskwarriorProvider mProvider;
 
     @Inject
     public TaskwarriorBackendFactory(Context context) {
         mContext = context;
-        mProvider = new AssetTaskwarriorProvider(mContext);
     }
 
     @Override
     public Configurator newConfigurator() {
-        return new NativeTaskwarriorConfigurator(mContext, mProvider, getSpec());
+        return new NativeTaskwarriorConfigurator(mContext, new AssetResourceProvider(), getSpec());
     }
 
     protected static NativeTaskwarriorConfigurator.Spec getSpec() {
@@ -36,7 +68,8 @@ public class TaskwarriorBackendFactory implements BackendFactory {
     @Override
     public Database newDatabase() {
         Taskwarrior taskwarrior = new NativeTaskwarrior(mContext, getSpec());
-        return new TaskwarriorDatabase(taskwarrior, new JsonTranslator());
+        return new TaskwarriorDatabase(new JsonParser(), taskwarrior, new Translator());
     }
 
 }
+

@@ -1,56 +1,72 @@
 package pl.rbolanowski.tw4a.backend.taskwarrior;
 
+import android.util.Log;
+
+import java.util.*;
+
 import pl.rbolanowski.tw4a.Task;
 import pl.rbolanowski.tw4a.backend.Database;
 
-import java.util.List;
-import java.util.LinkedList;
-
 public class TaskwarriorDatabase implements Database {
+
+    private static final String LOG_TAG = TaskwarriorDatabase.class.getSimpleName();
 
     private static class Field {
 
-        private static class Description {
-        }
+        private static class Description {}
 
         static Description description;
 
     }
 
+    private Parser mParser;
     private Taskwarrior mTaskwarrior;
     private Translator mTranslator;
 
-    public TaskwarriorDatabase(Taskwarrior taskwarrior, Translator translator) {
+    public TaskwarriorDatabase(Parser parser, Taskwarrior taskwarrior, Translator translator) {
+        mParser = parser;
         mTaskwarrior = taskwarrior;
         mTranslator = translator;
     }
 
     @Override
     public Task[] select() {
-        LinkedList<Task> list = new LinkedList<>();
-        translateTaskwarrior(mTaskwarrior.export(), list);
-        return removeCompleted(list).toArray(new Task[] {});
+        Taskwarrior.Output output = mTaskwarrior.export();
+        List<InternalTask> internalTasks = only(parse(output.stdout), InternalTask.Status.Pending);
+        return translateAll(internalTasks);
     }
 
-    private void translateTaskwarrior(Taskwarrior.Output output, List<Task> dest) {
-        String data = output.stdout;
-        if (data == null || data.isEmpty()) return;
-        for (String line : data.split("\n")) {
-            try {
-                dest.add(mTranslator.decode(line));
-            } catch (Translator.ParserException e) {
-                continue;
+    private List<InternalTask> parse(String str) {
+        InternalTask tasks[] = new InternalTask[0];
+        try {
+            tasks = mParser.parse(str);
+        }
+        catch (Parser.ParserException e) {
+            Log.w(LOG_TAG, "parsing failed, returning empty task list");
+            Log.d(LOG_TAG, e.toString());
+        }
+        finally {
+            return new LinkedList<>(Arrays.asList(tasks));
+        }
+    }
+
+    private static List<InternalTask> only(List<InternalTask> elements, InternalTask.Status status) {
+        Iterator<InternalTask> iter = elements.listIterator();
+        while (iter.hasNext()) {
+            InternalTask elem = iter.next();
+            if (elem.status != status) {
+                iter.remove();
             }
         }
+        return elements;
     }
 
-    private List<Task> removeCompleted(List<Task> tasks) {
-        LinkedList<Task> completedTasks =  new LinkedList<>();
-        for (Task task : tasks) {
-            if (!task.done) continue;
-            completedTasks.add(task);
+    private Task[] translateAll(List<InternalTask> internalTasks) {
+        Task tasks[] = new Task[internalTasks.size()];
+        int k = 0;
+        for (InternalTask in : internalTasks) {
+            tasks[k++] = mTranslator.translate(in);
         }
-        tasks.removeAll(completedTasks);
         return tasks;
     }
 
@@ -77,8 +93,8 @@ public class TaskwarriorDatabase implements Database {
         mTaskwarrior.modify(task.uuid, task.description, translateStatus(task.done));
     }
 
-    private static Taskwarrior.TaskStatus translateStatus(boolean done) {
-        return done ? Taskwarrior.TaskStatus.Completed : Taskwarrior.TaskStatus.Pending;
+    private static InternalTask.Status translateStatus(boolean done) {
+        return done ? InternalTask.Status.Completed : InternalTask.Status.Pending;
     }
 
 }

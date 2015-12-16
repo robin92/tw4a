@@ -2,10 +2,18 @@ package pl.rbolanowski.tw4a.backend.taskwarrior;
 
 import pl.rbolanowski.tw4a.Task;
 
-public interface Translator {
+public class Translator {
 
-    class ParserException extends Exception {}
-
-    Task decode(String taskStr) throws ParserException;
+    public Task translate(InternalTask in) {
+        Task out = null;
+        if (in != null) {
+            out = new Task();
+            out.uuid = in.uuid;
+            out.description = in.description;
+            out.done = in.status == InternalTask.Status.Completed;
+        }
+        return out;
+    }
 
 }
+

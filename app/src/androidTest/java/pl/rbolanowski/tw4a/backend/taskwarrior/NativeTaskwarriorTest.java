@@ -43,18 +43,26 @@ public class NativeTaskwarriorTest extends AndroidTestCase {
         assertTrue(matchPattern(Pattern.compile("Created task 2"), outputs[1].stdout));
     }
 
+    /*
+     * sample output:
+     * [
+     * TASK_0,
+     * TASK_1,
+     * ...
+     * TASK_N
+     * ]
+     */
     @Test public void exportsData() throws Exception{
         mTaskwarrior.put("some task");
         mTaskwarrior.put("other task");
         String[] output = mTaskwarrior.export().stdout.split("\n");
-        assertTrue(matchPattern(Pattern.compile("\"description\":\"some task\""), output[0]));
-        assertTrue(matchPattern(Pattern.compile("\"description\":\"other task\""), output[1]));
+        assertTrue(matchPattern(Pattern.compile("\"description\":\"some task\""), output[1]));
+        assertTrue(matchPattern(Pattern.compile("\"description\":\"other task\""), output[2]));
     }
 
     @Test public void updateingNotExistingTaskDoesNothing() throws Exception {
-        Output output = mTaskwarrior.modify("any", "any", TaskStatus.Pending);
-        assertTrue(output.stdout.isEmpty());
-        assertTrue(mTaskwarrior.export().stdout.isEmpty());
+        assertTrue(mTaskwarrior.modify("any", "any", InternalTask.Status.Pending).stdout.isEmpty());
+        assertEquals(0, countTasks(mTaskwarrior.export().stdout));
     }
 
     @Test public void updatesDescription() throws Exception {
@@ -65,7 +73,7 @@ public class NativeTaskwarriorTest extends AndroidTestCase {
         mTaskwarrior.modify(uuid, "changed to really long long text", null);
 
         String stdout = mTaskwarrior.export().stdout;
-        assertTrue(isOneTask(stdout));
+        assertEquals(1, countTasks(stdout));
         assertTrue(matchPattern(Pattern.compile("\"description\":\"changed to really long long text\""), stdout));
     }
 
@@ -74,10 +82,10 @@ public class NativeTaskwarriorTest extends AndroidTestCase {
         String uuid = findUuid(mTaskwarrior.export().stdout);
         assertNotNull(uuid);
 
-        mTaskwarrior.modify(uuid, null, TaskStatus.Completed);
+        mTaskwarrior.modify(uuid, null, InternalTask.Status.Completed);
 
         String stdout = mTaskwarrior.export().stdout;
-        assertTrue(isOneTask(stdout));
+        assertEquals(1, countTasks(stdout));
         assertTrue(matchPattern(Pattern.compile("\"status\":\"completed\""), stdout));
     }
 
@@ -87,8 +95,8 @@ public class NativeTaskwarriorTest extends AndroidTestCase {
         return matcher.group(1);
     }
 
-    private static boolean isOneTask(String value) {
-        return value.split("\n").length == 1;
+    private static int countTasks(String value) {
+        return value.split("\n").length - 2;
     }
 
     private static boolean matchPattern(Pattern pattern, String value) {

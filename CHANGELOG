@@ -1,5 +1,7 @@
 next
 ================================================================================
++ [backend] updated taskwarrior to version 2.5.0 provided by termux
++ [backend] support for recurring task status (tasks are just only parsed but not displayed)
 + ...
 
 0.1.0

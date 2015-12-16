@@ -4,22 +4,6 @@ import android.support.annotation.NonNull;
 
 public interface Taskwarrior {
 
-    enum TaskStatus {
-
-        Pending ("pending"),
-        Completed ("completed");
-
-        private String mRepr;
-
-        TaskStatus(String repr) {
-            mRepr = repr;
-        }
-
-        @Override
-        public String toString() { return mRepr; }
-
-    }
-
     class Output {
 
         public String stdout;
@@ -34,6 +18,6 @@ public interface Taskwarrior {
     /**
      * Modifies description of task with given UUID.
      */
-    Output modify(@NonNull String uuid, String description, TaskStatus status);
+    Output modify(@NonNull String uuid, String description, InternalTask.Status status);
 
 }
