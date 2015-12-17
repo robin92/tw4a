@@ -6,6 +6,8 @@ import org.junit.runner.RunWith;
 
 import pl.rbolanowski.tw4a.test.AndroidTestCase;
 
+import static pl.rbolanowski.tw4a.Task.EPSILON;
+
 @RunWith(AndroidJUnit4.class)
 public class JsonParserTest extends AndroidTestCase {
 
@@ -74,10 +76,16 @@ public class JsonParserTest extends AndroidTestCase {
         decode(array(INPUT.replace("\"description\":\"some task\"", "\"description\": 666")));
     }
 
-    @Test public void parsesSingleJsonTask() throws Exception {
+    @Test public void parsesSimpleFields() throws Exception {
         InternalTask task = decode(array(INPUT))[0];
         assertEquals("uuid-value", task.uuid);
         assertEquals("some task", task.description);
+        assertEquals(0.0f, task.urgency, EPSILON);
+        assertEquals(InternalTask.Status.Pending, task.status);
+    }
+
+    @Test public void parsesStatuses() throws Exception {
+        InternalTask task = decode(array(INPUT))[0];
         assertEquals(InternalTask.Status.Pending, task.status);
 
         task = decode(array(generateTaskInput("completed")))[0];
@@ -85,6 +93,20 @@ public class JsonParserTest extends AndroidTestCase {
 
         task = decode(array(generateTaskInput("recurring")))[0];
         assertEquals(InternalTask.Status.Recurring, task.status);
+    }
+
+    @Test public void parsesUrgency() throws Exception {
+        InternalTask task = decode(array(INPUT))[0];
+        assertEquals(0.0f, task.urgency, EPSILON);
+
+        task = decode(array(INPUT.replace("\"urgency\":0", "\"urgency\":0.0")))[0];
+        assertEquals(0.0f, task.urgency, EPSILON);
+
+        task = decode(array(INPUT.replace("\"urgency\":0", "\"urgency\":12.3456789")))[0];
+        assertEquals(12.3456f, task.urgency, EPSILON);
+
+        task = decode(array(INPUT.replace("\"urgency\":0", "\"urgency\":-12.3456789")))[0];
+        assertEquals(-12.3456f, task.urgency, EPSILON);
     }
 
     @Test public void parsesArrayOfTasks() throws Exception {

@@ -32,6 +32,7 @@ public class JsonParser implements Parser {
             new DescriptionNode(mReader),
             new UuidNode(mReader),
             new TaskStatusNode(mReader),
+            new UrgencyNode(mReader),
         };
     }
 
@@ -115,6 +116,26 @@ abstract class StringNode implements VisitableNode {
 
 }
 
+abstract class FloatNode implements VisitableNode {
+
+    private JsonReader mReader;
+
+    public FloatNode(JsonReader reader) {
+        mReader = reader;
+    }
+
+    @Override
+    public void visit(InternalTask task) throws IOException, JsonParser.ValueException {
+        if (mReader.peek() != JsonToken.NUMBER) {
+            throw new JsonParser.ValueException();
+        }
+        modify(task, (float) mReader.nextDouble());
+    }
+
+    protected abstract void modify(@NonNull InternalTask task, @NonNull float value);
+
+}
+
 class DescriptionNode extends StringNode {
 
     public DescriptionNode(JsonReader reader) {
@@ -173,6 +194,24 @@ class TaskStatusNode implements VisitableNode {
         StringBuilder builder = new StringBuilder();
         builder.append(value.substring(0, 1).toUpperCase()).append(value.substring(1));
         return builder.toString();
+    }
+
+}
+
+class UrgencyNode extends FloatNode {
+
+    public UrgencyNode(JsonReader reader) {
+        super(reader);
+    }
+
+    @Override
+    public boolean canVisit(String name) {
+        return "urgency".equals(name);
+    }
+
+    @Override
+    protected void modify(@NonNull InternalTask task, @NonNull float value) {
+        task.urgency = value;
     }
 
 }
