@@ -15,12 +15,12 @@ public class TranslatorTest {
 
     @Test public void translatesNotNullObjects() {
         InternalTask in = new InternalTask();
-        assertTaskMatches(mTranslator.translate(in), null, null, false);
 
         in.uuid = "1234";
         in.description = "hello world";
+        in.urgency = 9.8401f;
         in.status = InternalTask.Status.Pending;
-        assertTaskMatches(mTranslator.translate(in), "1234", "hello world", false);
+        assertTaskMatches(mTranslator.translate(in), "1234", "hello world", false, 9.8401f);
 
         in.status = InternalTask.Status.Recurring;
         assertFalse(mTranslator.translate(in).done);
@@ -29,10 +29,12 @@ public class TranslatorTest {
         assertTrue(mTranslator.translate(in).done);
     }
 
-    private static final void assertTaskMatches(Task task, String uuid, String description, Boolean done) {
+    private static final void assertTaskMatches(
+        Task task, String uuid, String description, Boolean done, Float urgency) {
         assertEquals(task.uuid, uuid);
         assertEquals(task.description, description);
         assertEquals(task.done, done);
+        assertEquals(task.urgency, urgency, Task.EPSILON);
     }
 
 }

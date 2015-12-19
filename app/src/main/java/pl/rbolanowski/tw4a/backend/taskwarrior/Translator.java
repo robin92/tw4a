@@ -11,6 +11,7 @@ public class Translator {
             out.uuid = in.uuid;
             out.description = in.description;
             out.done = in.status == InternalTask.Status.Completed;
+            out.urgency = in.urgency;
         }
         return out;
     }

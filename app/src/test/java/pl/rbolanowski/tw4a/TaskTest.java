@@ -11,6 +11,8 @@ public class TaskTest {
         assertNull(task.uuid);
         assertNull(task.description);
         assertFalse(task.done);
+        assertEquals(0.0f, task.urgency, Task.EPSILON);
     }
 
 }
+

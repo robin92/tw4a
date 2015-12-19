@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
+import java.util.Collections;
 import java.util.Vector;
 
 import com.google.inject.Inject;
@@ -18,6 +19,7 @@ import pl.rbolanowski.tw4a.backend.Database;
 import static android.view.ContextMenu.ContextMenuInfo;
 import static android.widget.AdapterView.AdapterContextMenuInfo;
 
+import static pl.rbolanowski.tw4a.TaskComparators.*;
 import static pl.rbolanowski.tw4a.backend.Database.*;
 
 public class TaskListFragment
@@ -140,6 +142,7 @@ public class TaskListFragment
 
     private void registerAdapter() {
         mTasks = vectorOf(mBackend.newDatabase().select());
+        Collections.sort(mTasks, reverse(byUrgency()));
         mTaskAdapter = new TaskAdapter(getActivity(), R.layout.task_list_element, mTasks);
         setListAdapter(mTaskAdapter);
         getListView().setEmptyView(mEmptyView);

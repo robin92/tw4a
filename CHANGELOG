@@ -2,6 +2,8 @@ next
 ================================================================================
 + [backend] updated taskwarrior to version 2.5.0 provided by termux
 + [backend] support for recurring task status (tasks are just only parsed but not displayed)
++ [backend] support for urgency task field
++ displayed tasks are sorted by urgency in descending order
 + ...
 
 0.1.0

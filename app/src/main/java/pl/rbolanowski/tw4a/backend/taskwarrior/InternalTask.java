@@ -22,6 +22,7 @@ public class InternalTask {
     public String uuid;
     public String description;
     public Status status;
+    public float urgency;
 
 }
 

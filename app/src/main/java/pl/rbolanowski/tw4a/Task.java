@@ -5,14 +5,16 @@ import android.os.Parcel;
 
 public class Task implements Parcelable {
 
+    public static final float EPSILON = 0.0001f;
+
     public String uuid;
     public String description;
     public boolean done;
+    public float urgency;
 
     public Task() {}
 
-    public static final Parcelable.Creator<Task> CREATOR
-             = new Parcelable.Creator<Task>() {
+    public static final Parcelable.Creator<Task> CREATOR = new Parcelable.Creator<Task>() {
          
         public Task createFromParcel(Parcel in) {
             return new Task(in);
