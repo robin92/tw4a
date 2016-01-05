@@ -97,7 +97,9 @@ public class TaskListFragment
                 filterTasks(null);
                 return true;
             }
-            return false;
+
+            filterTasks(newText);
+            return true;
         }
 
         @Override
