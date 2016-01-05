@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TW4A</string>
+    <string name="not_implemented">Nie zaimplementowano</string>
+
+    <!-- generic words -->
+    <string name="add">Dodaj</string>
+    <string name="save">Zapisz</string>
+    <string name="cancel">Anuluj</string>
+    <string name="description">Opis</string>
+    <string name="done">Zakończ</string>
+    <string name="edit">Edytuj</string>
+
+    <!-- application specific -->
+    <string name="configure_error_title">Nie udało się skonfigurować aplikacji!</string>
+    <string name="configure_error_description">Upewnij się, że masz dostęp do internetu i przeciągnij ekran w dół, żeby spróbować ponownie.</string>
+    <string name="add_task_dialog_header">Nowe zadanie</string>
+    <string name="edit_task_dialog_header">Edycja zadania</string>
+    <string name="list_empty">Brak oczekujących zadań</string>
+</resources>
+
