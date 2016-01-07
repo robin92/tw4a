@@ -83,7 +83,7 @@ class TaskFilter extends Filter {
     }
 
     private static boolean match(CharSequence seq, Task task) {
-        return task.description.contains(seq);
+        return task.description.toLowerCase().contains(seq.toString().toLowerCase());
     }
 
     private FilterResults makeResults(Collection<Task> tasks) {
