@@ -48,23 +48,42 @@ public class TaskAdapterTest {
         filter(adapter, "desc");
         assertEquals(5, adapter.getCount());
 
-        filter(adapter, "DeSc");
+        filter(adapter, "Desc");
         assertEquals(5, adapter.getCount());
 
-        filter(adapter, "uMbEr");
-        assertEquals(5, adapter.getCount());
+        filter(adapter, "DeSc");
+        assertEquals(0, adapter.getCount());
+
+        filter(adapter, "desc number 2");
+        assertEquals(1, adapter.getCount());
+        assertEquals("Desc Number 2", adapter.getItem(0).description);
+
+        filter(adapter, "Desc Number 2");
+        assertEquals(1, adapter.getCount());
+        assertEquals("Desc Number 2", adapter.getItem(0).description);
+
+        filter(adapter, "Desc number 2");
+        assertEquals(0, adapter.getCount());
+
+        filter(adapter, "desc nuMber 2");
+        assertEquals(0, adapter.getCount());
 
         filter(adapter, "1");
         assertEquals(1, adapter.getCount());
+        assertEquals("Desc Number 1", adapter.getItem(0).description);
 
         filter(adapter, "2");
         assertEquals(1, adapter.getCount());
+        assertEquals("Desc Number 2", adapter.getItem(0).description);
 
         filter(adapter, "22");
         assertEquals(0, adapter.getCount());
 
         filter(adapter, "6");
         assertEquals(0, adapter.getCount());
+
+        filter(adapter, "");
+        assertEquals(5, adapter.getCount());
 
         filter(adapter, null);
         assertEquals(5, adapter.getCount());
@@ -79,7 +98,7 @@ public class TaskAdapterTest {
         Vector<Task> tasks = new Vector<>();
         for (int i = 0; i < size; i++) {
             Task task = new Task();
-            task.description = "desc number " + Integer.toString(i);
+            task.description = "Desc Number " + Integer.toString(i);
             tasks.add(task);
         }
         return tasks;
