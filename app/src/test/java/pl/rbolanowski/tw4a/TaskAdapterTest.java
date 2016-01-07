@@ -48,10 +48,19 @@ public class TaskAdapterTest {
         filter(adapter, "desc");
         assertEquals(5, adapter.getCount());
 
+        filter(adapter, "Desc");
+        assertEquals(0, adapter.getCount());
+
         filter(adapter, "1");
         assertEquals(1, adapter.getCount());
 
         filter(adapter, "2");
+        assertEquals(1, adapter.getCount());
+
+        filter(adapter, "22");
+        assertEquals(0, adapter.getCount());
+
+        filter(adapter, "6");
         assertEquals(0, adapter.getCount());
 
         filter(adapter, null);
