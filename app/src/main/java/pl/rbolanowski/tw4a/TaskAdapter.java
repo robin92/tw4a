@@ -71,6 +71,7 @@ class TaskFilter extends Filter {
 
     @Override
     protected FilterResults performFiltering(CharSequence constraint) {
+        mAdapter.restore();  // filter out from the whole task collection
         Vector<Task> notMatched = new Vector<>();
         for (int i = 0; i < mAdapter.getCount(); i++) {
             Task task = mAdapter.getItem(i);
