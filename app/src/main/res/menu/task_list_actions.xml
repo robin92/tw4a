@@ -10,5 +10,11 @@
         app:actionViewClass="android.widget.SearchView"
         app:showAsAction="always"
         />
+    <item
+        android:id="@+id/action_export"
+        android:title="@string/export_internal_data"
+        android:orderInCategory="110"
+        app:showAsAction="never"
+        />
 </menu>
 

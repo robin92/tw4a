@@ -1,13 +1,17 @@
 package pl.rbolanowski.tw4a;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.support.v4.content.FileProvider;
 import android.view.*;
 import android.widget.*;
 
-import java.util.Collections;
-import java.util.Vector;
+import java.io.*;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import com.google.inject.Inject;
 import roboguice.fragment.RoboListFragment;
@@ -168,8 +172,45 @@ public class TaskListFragment
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Toast.makeText(getActivity(), R.string.not_implemented, Toast.LENGTH_SHORT).show();
+        switch (item.getItemId()) {
+            case R.id.action_export:
+                try {
+                    exportInternalData();
+                }
+                catch (IOException err) {
+                    System.err.println(err.toString());
+                }
+                break;
+
+            default:
+                Toast.makeText(getActivity(), R.string.not_implemented, Toast.LENGTH_SHORT).show();
+                break;
+        }
         return true;
+    }
+
+    private void exportInternalData() throws IOException {
+        File file = new File(getActivity().getCacheDir(), Long.toString(System.currentTimeMillis()) + ".zip");
+        OutputStream outputStream = new FileOutputStream(file);
+        try {
+            ZipExportHandler handler = new ZipExportHandler(outputStream);
+            mBackend.newExporter().export(handler);
+        }
+        finally {
+            outputStream.close();
+        }
+
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(
+            Intent.EXTRA_STREAM,
+            FileProvider.getUriForFile(
+                getActivity(),
+                "pl.rbolanowski.tw4a",
+                new File(getActivity().getCacheDir(), file.getName())
+            ));
+        shareIntent.setType("application/zip");
+        startActivity(Intent.createChooser(shareIntent, "Share"));
     }
 
     @Override
@@ -228,6 +269,31 @@ public class TaskListFragment
         TaskDialog dialog = new TaskDialog();
         dialog.setOnTaskChangedListener(TaskListFragment.this);
         dialog.show(getActivity().getSupportFragmentManager(), "Add new task");
+    }
+
+}
+
+class ZipExportHandler implements pl.rbolanowski.tw4a.backend.Exporter.Handler {
+
+    private ZipOutputStream mOutputStream;
+
+    private StreamUtil mStreams = new StreamUtil();
+    private LinkedList<String> mCachedNames = new LinkedList<>();
+
+    public ZipExportHandler(OutputStream outputStream) {
+        mOutputStream = new ZipOutputStream(outputStream);
+    }
+
+    @Override
+    public void onStreamReady(String name, InputStream inputStream) throws IOException {
+        try {
+            mOutputStream.putNextEntry(new ZipEntry(name));
+            mStreams.copy(inputStream, mOutputStream);
+        }
+        finally {
+            mOutputStream.closeEntry();
+            mCachedNames.add(name);
+        }
     }
 
 }

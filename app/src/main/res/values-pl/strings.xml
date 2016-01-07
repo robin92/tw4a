@@ -17,5 +17,6 @@
     <string name="add_task_dialog_header">Nowe zadanie</string>
     <string name="edit_task_dialog_header">Edycja zadania</string>
     <string name="list_empty">Brak oczekujących zadań</string>
+    <string name="export_internal_data">Eksportuj dane</string>
 </resources>
 
