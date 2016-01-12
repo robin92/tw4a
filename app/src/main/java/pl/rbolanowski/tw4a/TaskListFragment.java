@@ -287,7 +287,7 @@ class ZipExportHandler implements pl.rbolanowski.tw4a.backend.Exporter.Handler {
     public void onStreamReady(String name, InputStream inputStream) throws IOException {
         try {
             mOutputStream.putNextEntry(new ZipEntry(name));
-            StreamUtil.copy(inputStream, mOutputStream);
+            Streams.copy(inputStream, mOutputStream);
         }
         finally {
             mOutputStream.closeEntry();

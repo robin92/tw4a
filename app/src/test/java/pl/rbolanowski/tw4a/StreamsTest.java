@@ -5,9 +5,9 @@ import java.io.*;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import static pl.rbolanowski.tw4a.StreamUtil.*;
+import static pl.rbolanowski.tw4a.Streams.*;
 
-public class StreamUtilTest {
+public class StreamsTest {
 
     private final byte[] mBytes = new byte[] { 17, 16, 0, 55, 23, 66, 127, -128, -23, 66 };
 

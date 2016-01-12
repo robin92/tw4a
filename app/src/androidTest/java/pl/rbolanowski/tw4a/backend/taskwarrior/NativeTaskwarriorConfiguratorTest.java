@@ -5,7 +5,7 @@ import android.content.res.AssetManager;
 import java.io.*;
 import org.junit.*;
 
-import pl.rbolanowski.tw4a.StreamUtil;
+import pl.rbolanowski.tw4a.Streams;
 import pl.rbolanowski.tw4a.backend.Configurator;
 import pl.rbolanowski.tw4a.test.AndroidMockitoTestCase;
 
@@ -101,7 +101,7 @@ public class NativeTaskwarriorConfiguratorTest extends AndroidMockitoTestCase {
     }
 
     private byte[] readFile(String name) throws IOException {
-        return StreamUtil.read(getTargetContext().openFileInput(name)).toByteArray();
+        return Streams.read(getTargetContext().openFileInput(name)).toByteArray();
     }
 
     private static void assertFileExists(String name) {

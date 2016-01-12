@@ -3,7 +3,7 @@ package pl.rbolanowski.tw4a.backend.taskwarrior;
 import android.content.Context;
 import android.util.Log;
 
-import pl.rbolanowski.tw4a.StreamUtil;
+import pl.rbolanowski.tw4a.Streams;
 import pl.rbolanowski.tw4a.backend.Configurator;
 
 import java.io.*;
@@ -114,7 +114,7 @@ public class NativeTaskwarriorConfigurator implements Configurator {
 
     private void copy(InputStream inputStream, OutputStream outputStream) throws IOException {
         try {
-            StreamUtil.copy(inputStream, outputStream);
+            Streams.copy(inputStream, outputStream);
         } finally {
             inputStream.close();
             outputStream.close();

@@ -2,11 +2,11 @@ package pl.rbolanowski.tw4a;
 
 import java.io.*;
 
-public class StreamUtil {
+public class Streams {
 
     private static final int BUFFER_SIZE = 16 * 1024;
 
-    private StreamUtil() {}
+    private Streams() {}
 
     public static void copy(InputStream inputStream, OutputStream outputStream) throws IOException {
         byte buffer[] = new byte[BUFFER_SIZE];

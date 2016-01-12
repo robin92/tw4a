@@ -108,7 +108,7 @@ public class ExportingTaskwarriorDataTest extends FunctionalTest {
             ZipEntry currentEntry = null;
             while ( (currentEntry = inputStream.getNextEntry()) != null) {
                 Data data = findDataByName(currentEntry.getName());
-                data.actual = new String(StreamUtil.read(inputStream).toByteArray());
+                data.actual = new String(Streams.read(inputStream).toByteArray());
             }
         }
         catch (EOFException e) {
@@ -133,7 +133,7 @@ public class ExportingTaskwarriorDataTest extends FunctionalTest {
     }
 
     private String read(File file) throws IOException {
-        return new String(StreamUtil.read(new FileInputStream(file)).toByteArray());
+        return new String(Streams.read(new FileInputStream(file)).toByteArray());
     }
 
 }

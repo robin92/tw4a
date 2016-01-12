@@ -2,7 +2,7 @@ package pl.rbolanowski.tw4a.backend.internal;
 
 import java.io.*;
 import org.junit.*;
-import pl.rbolanowski.tw4a.StreamUtil;
+import pl.rbolanowski.tw4a.Streams;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -25,7 +25,7 @@ public class DirectoryExporterTest implements DirectoryExporter.Handler {
     public void onStreamReady(String name, InputStream inputStream) throws IOException {
         File file = find(matchByName(name), mFiles);
         assertNotNull(file);
-        assertEquals(file.getAbsolutePath(), new String(StreamUtil.read(inputStream).toByteArray()));
+        assertEquals(file.getAbsolutePath(), new String(Streams.read(inputStream).toByteArray()));
     }
 
     private static <T> T find(Matcher<T> matcher, T... elements) {
