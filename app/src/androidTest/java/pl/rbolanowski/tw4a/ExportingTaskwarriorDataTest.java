@@ -7,7 +7,7 @@ import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
 import java.io.*;
-import java.util.zip.*;
+import java.util.Map;
 
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -21,6 +21,8 @@ import static android.support.test.espresso.intent.matcher.IntentMatchers.*;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 
 import static org.hamcrest.Matchers.*;
+
+import static pl.rbolanowski.tw4a.Zip.unzip;
 
 @RunWith(AndroidJUnit4.class)
 public class ExportingTaskwarriorDataTest extends FunctionalTest {
@@ -103,19 +105,10 @@ public class ExportingTaskwarriorDataTest extends FunctionalTest {
 
     private void extractExportedData(File zipFile) throws IOException {
         assertTrue("empty zip archive", zipFile.length() > 0);
-        ZipInputStream inputStream = new ZipInputStream(new FileInputStream(zipFile));
-        try {
-            ZipEntry currentEntry = null;
-            while ( (currentEntry = inputStream.getNextEntry()) != null) {
-                Data data = findDataByName(currentEntry.getName());
-                data.actual = new String(Streams.read(inputStream).toByteArray());
-            }
-        }
-        catch (EOFException e) {
-            inputStream.close();
-        }
-        finally {
-            inputStream.close();
+        Map<String, byte[]> unzipped = unzip(new FileInputStream(zipFile));
+        for (Map.Entry<String, byte[]> entry : unzipped.entrySet()) {
+            Data data = findDataByName(entry.getKey());
+            data.actual = new String(entry.getValue());
         }
     }
 
