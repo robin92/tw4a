@@ -52,7 +52,6 @@ public class NativeTaskwarriorConfigurator implements Configurator {
     private Context mContext;
     private Spec mSpec;
     private ResourceProvider mResource;
-    private StreamUtil mStreams = new StreamUtil();
     private Action mMakeExecutable = new MakeExecutableAction();
 
     public NativeTaskwarriorConfigurator(Context context, ResourceProvider resource, Spec spec) {
@@ -115,7 +114,7 @@ public class NativeTaskwarriorConfigurator implements Configurator {
 
     private void copy(InputStream inputStream, OutputStream outputStream) throws IOException {
         try {
-            mStreams.copy(inputStream, outputStream);
+            StreamUtil.copy(inputStream, outputStream);
         } finally {
             inputStream.close();
             outputStream.close();

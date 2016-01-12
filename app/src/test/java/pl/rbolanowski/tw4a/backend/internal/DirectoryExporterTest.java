@@ -18,7 +18,6 @@ public class DirectoryExporterTest implements DirectoryExporter.Handler {
 
     }
 
-    private StreamUtil mStreams = new StreamUtil();
     private File mDir;
     private File[] mFiles;
 
@@ -26,7 +25,7 @@ public class DirectoryExporterTest implements DirectoryExporter.Handler {
     public void onStreamReady(String name, InputStream inputStream) throws IOException {
         File file = find(matchByName(name), mFiles);
         assertNotNull(file);
-        assertEquals(file.getAbsolutePath(), new String(mStreams.read(inputStream).toByteArray()));
+        assertEquals(file.getAbsolutePath(), new String(StreamUtil.read(inputStream).toByteArray()));
     }
 
     private static <T> T find(Matcher<T> matcher, T... elements) {

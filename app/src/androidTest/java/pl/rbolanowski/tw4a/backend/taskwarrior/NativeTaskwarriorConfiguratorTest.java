@@ -16,7 +16,6 @@ public class NativeTaskwarriorConfiguratorTest extends AndroidMockitoTestCase {
     private NativeTaskwarriorConfigurator.Spec mSpec = new NativeTaskwarriorConfigurator.Spec();
     private NativeTaskwarriorConfigurator.ResourceProvider mProvider;
     private Configurator mConfigurator;
-    private StreamUtil mStreams = new StreamUtil();
 
     @Before public void setUp() throws Exception {
         configureSpec();
@@ -102,7 +101,7 @@ public class NativeTaskwarriorConfiguratorTest extends AndroidMockitoTestCase {
     }
 
     private byte[] readFile(String name) throws IOException {
-        return mStreams.read(getTargetContext().openFileInput(name)).toByteArray();
+        return StreamUtil.read(getTargetContext().openFileInput(name)).toByteArray();
     }
 
     private static void assertFileExists(String name) {
