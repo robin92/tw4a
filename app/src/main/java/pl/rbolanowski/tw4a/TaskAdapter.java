@@ -71,6 +71,7 @@ class TaskFilter extends Filter {
 
     @Override
     protected FilterResults performFiltering(CharSequence constraint) {
+        mAdapter.restore();  // filter out from the whole task collection
         Vector<Task> notMatched = new Vector<>();
         for (int i = 0; i < mAdapter.getCount(); i++) {
             Task task = mAdapter.getItem(i);
@@ -82,7 +83,21 @@ class TaskFilter extends Filter {
     }
 
     private static boolean match(CharSequence seq, Task task) {
-        return task.description.contains(seq);
+        if (hasUpperCase(seq)) {
+            return task.description.contains(seq);
+        }
+        else {
+            return task.description.toLowerCase().contains(seq.toString().toLowerCase());
+        }
+    }
+
+    private static boolean hasUpperCase(CharSequence seq) {
+        for (int i = 0; i < seq.length(); ++i) {
+            if (Character.isUpperCase(seq.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private FilterResults makeResults(Collection<Task> tasks) {

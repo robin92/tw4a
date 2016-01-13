@@ -4,6 +4,9 @@ next
 + [backend] support for recurring task status (tasks are just only parsed but not displayed)
 + [backend] support for urgency task field
 + displayed tasks are sorted by urgency in descending order
++ [gui] tasks are searched dynamically as search queries are typed in
++ [gui] "smartcase search": tasks are searched case insensitively when search query has no upeer
+  case characters (otherwise  they are searched case sensitively)
 + ...
 
 0.1.0
