@@ -7,7 +7,7 @@ import android.util.Log;
 import java.io.*;
 import java.util.Vector;
 
-import pl.rbolanowski.tw4a.StreamUtil;
+import pl.rbolanowski.tw4a.Streams;
 
 public class NativeTaskwarrior implements Taskwarrior {
 
@@ -18,7 +18,6 @@ public class NativeTaskwarrior implements Taskwarrior {
     private File mConfig;
     private File mDataDir;
     private String[] mEnvironment;
-    private StreamUtil mStreams = new StreamUtil();
 
     public NativeTaskwarrior(Context context, NativeTaskwarriorConfigurator.Spec spec) {
         mContext = context;
@@ -81,8 +80,8 @@ public class NativeTaskwarrior implements Taskwarrior {
         process.waitFor();
 
         Output out = new Output();
-        out.stderr = new String(mStreams.read(process.getErrorStream()).toByteArray());
-        out.stdout = new String(mStreams.read(process.getInputStream()).toByteArray());
+        out.stderr = new String(Streams.read(process.getErrorStream()).toByteArray());
+        out.stdout = new String(Streams.read(process.getInputStream()).toByteArray());
         return log(args, out);
     }
 

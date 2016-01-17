@@ -1,11 +1,12 @@
 package pl.rbolanowski.tw4a.backend.taskwarrior;
 
 import android.content.Context;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+
 import com.google.inject.Inject;
 
 import pl.rbolanowski.tw4a.backend.*;
+import pl.rbolanowski.tw4a.backend.internal.DirectoryExporter;
 
 public class TaskwarriorBackendFactory implements BackendFactory {
 
@@ -69,6 +70,11 @@ public class TaskwarriorBackendFactory implements BackendFactory {
     public Database newDatabase() {
         Taskwarrior taskwarrior = new NativeTaskwarrior(mContext, getSpec());
         return new TaskwarriorDatabase(new JsonParser(), taskwarrior, new Translator());
+    }
+
+    @Override
+    public Exporter newExporter() {
+        return new DirectoryExporter(mContext.getFileStreamPath(TASKWARRIOR_DATADIR));
     }
 
 }

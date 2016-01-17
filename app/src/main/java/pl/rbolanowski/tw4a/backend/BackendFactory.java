@@ -6,4 +6,6 @@ public interface BackendFactory {
 
     Database newDatabase();
 
+    Exporter newExporter();
+
 }
