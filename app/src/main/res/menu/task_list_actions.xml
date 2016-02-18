@@ -16,5 +16,11 @@
         android:orderInCategory="110"
         app:showAsAction="never"
         />
+    <item
+        android:id="@+id/action_settings"
+        android:title="@string/settings"
+        android:orderInCategory="120"
+        app:showAsAction="never"
+        />
 </menu>
 

@@ -10,6 +10,7 @@
     <string name="description">Description</string>
     <string name="done">Done</string>
     <string name="edit">Edit</string>
+    <string name="settings">Settings</string>
 
     <!-- application specific -->
     <string name="configure_error_title">Could not configure application!</string>
