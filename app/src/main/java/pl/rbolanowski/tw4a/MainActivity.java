@@ -2,6 +2,7 @@ package pl.rbolanowski.tw4a;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.*;
 import android.util.Log;
 import android.view.View;
@@ -27,6 +28,7 @@ public class MainActivity
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         mErrorFragment.setOnRetryListener(this);
     }
 
