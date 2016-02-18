@@ -19,6 +19,7 @@ import roboguice.inject.InjectView;
 
 import pl.rbolanowski.tw4a.backend.BackendFactory;
 import pl.rbolanowski.tw4a.backend.Database;
+import pl.rbolanowski.tw4a.preference.PreferenceActivity;
 
 import static android.view.ContextMenu.ContextMenuInfo;
 import static android.widget.AdapterView.AdapterContextMenuInfo;
@@ -180,6 +181,11 @@ public class TaskListFragment
                 catch (IOException err) {
                     System.err.println(err.toString());
                 }
+                break;
+
+            // TODO this should be placed in MainActivity
+            case R.id.action_settings:
+                getActivity().startActivity(new Intent(getActivity(), PreferenceActivity.class));
                 break;
 
             default:

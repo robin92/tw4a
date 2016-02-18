@@ -11,6 +11,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="pl.rbolanowski.tw4a.preference.PreferenceActivity"/>
         <meta-data
             android:name="roboguice.modules"
             android:value="pl.rbolanowski.tw4a.backend.taskwarrior.Module" />

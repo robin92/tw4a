@@ -19,5 +19,9 @@
     <string name="edit_task_dialog_header">Edit Task</string>
     <string name="list_empty">No pending tasks</string>
     <string name="export_internal_data">Export internal data</string>
+
+    <string name="pref_synchronization">Synchronization</string>
+    <string name="pref_taskwarrior_private_key">Private key</string>
+    <string name="pref_key_taskwarrior_private_key">pref_taskwarrior_private_key</string>
 </resources>
 
