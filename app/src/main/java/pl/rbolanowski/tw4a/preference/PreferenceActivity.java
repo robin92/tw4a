@@ -16,6 +16,7 @@ public class PreferenceActivity extends RoboPreferenceActivity
         SharedPreferences.OnSharedPreferenceChangeListener {
 
     private String mCurrentKey;
+    @InjectPreference("pref_taskwarrior_sync") private PreferenceGroup mPrefSync;
     @InjectPreference("pref_taskwarrior_sync_state") private Preference mPrefSyncState;
     @InjectPreference("pref_taskwarrior_private_key") private Preference mPrefPrivateKey;
 
@@ -88,26 +89,46 @@ public class PreferenceActivity extends RoboPreferenceActivity
 
     // TODO changing sync state moved to seperate class
     // TODO handling preference change generalized
-    // TODO handling additional fields: host, credentials, ca, cert
+    // FIXME prepared -> off
     @Override
     public void onSharedPreferenceChanged(SharedPreferences settings, String key) {
-        if (key.equals(mPrefPrivateKey.getKey())) {
-            String value = settings.getString(key, "");
-            if (!"".equals(value)) {
-                mPrefPrivateKey.setSummary(getString(R.string.set));
-            }
-        }
-        else if (key.equals(mPrefSyncState.getKey())) {
-            String value = settings.getString(key, null);
-            mPrefSyncState.setSummary(value);
-        }
-
-        if (!"".equals(settings.getString(mPrefPrivateKey.getKey(), ""))) {
+        updateSummary(settings, key);
+        if (isSynchronizationStatusChanged(settings)) {
             String[] states = getResources().getStringArray(R.array.taskwarrior_sync_states);
             settings.edit()
                 .putString(mPrefSyncState.getKey(), states[1])
                 .commit();
         }
+    }
+
+    private void updateSummary(SharedPreferences settings, String changedKey) {
+        final String[] keys = { "pref_taskwarrior_private_key", "pref_taskwarrior_ca", "pref_taskwarrior_cert" };
+        for (String key : keys) {
+            if (!key.equals(changedKey)) continue;
+
+            Preference preference = findPreference(key);
+            String value = settings.getString(key, "");
+            if (!"".equals(value)) {
+                preference.setSummary(getString(R.string.set));
+            }
+        }
+
+        if ("pref_taskwarrior_sync_state".equals(changedKey)) {
+            Preference preference = findPreference(changedKey);
+            preference.setSummary(settings.getString(changedKey, ""));
+        }
+    }
+
+    private boolean isSynchronizationStatusChanged(SharedPreferences settings) {
+        for (int i = 0; i < mPrefSync.getPreferenceCount(); i++) {
+            Preference preference = mPrefSync.getPreference(i);
+            String value = settings.getString(preference.getKey(), "");
+            System.err.println("preference: " + preference.getKey() + ", value: '" + value + "'");
+            if ("".equals(value)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
