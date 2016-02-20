@@ -11,6 +11,13 @@
     <string name="done">Done</string>
     <string name="edit">Edit</string>
     <string name="settings">Settings</string>
+    <string name="set">Set</string>
+    <string name="none">None</string>
+    <string name="status">Status</string>
+    <string name="synchronization">Synchronization</string>
+    <string name="private_key">Private key</string>
+    <string name="certificate_request">Certificate request</string>
+    <string name="certificate">Certificate</string>
 
     <!-- application specific -->
     <string name="configure_error_title">Could not configure application!</string>
@@ -20,8 +27,11 @@
     <string name="list_empty">No pending tasks</string>
     <string name="export_internal_data">Export internal data</string>
 
-    <string name="pref_synchronization">Synchronization</string>
-    <string name="pref_taskwarrior_private_key">Private key</string>
-    <string name="pref_key_taskwarrior_private_key">pref_taskwarrior_private_key</string>
+    <string-array name="taskwarrior_sync_states">
+        <item>Off</item>
+        <item>Prepared</item>
+        <item>Failed</item>
+        <item>On</item>
+    </string-array>
 </resources>
 

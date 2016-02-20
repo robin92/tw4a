@@ -1,6 +1,7 @@
 package pl.rbolanowski.tw4a.preference;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.preference.Preference;
 
 import roboguice.activity.RoboPreferenceActivity;
@@ -9,17 +10,33 @@ import roboguice.inject.InjectPreference;
 import pl.rbolanowski.tw4a.R;
 
 public class PreferenceActivity extends RoboPreferenceActivity
-    implements Preference.OnPreferenceClickListener {
+    implements
+        Preference.OnPreferenceClickListener,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     private String mCurrentKey;
+    @InjectPreference("pref_taskwarrior_sync_state") private Preference mPrefSyncState;
+    @InjectPreference("pref_taskwarrior_private_key") private Preference mPrefPrivateKey;
 
     @Override
     public void onCreate(android.os.Bundle savedState) {
         super.onCreate(savedState);
         addPreferencesFromResource(R.xml.preferences);
+        mPrefPrivateKey.setOnPreferenceClickListener(this);
+    }
 
-        findPreference(getString(R.string.pref_key_taskwarrior_private_key))
-            .setOnPreferenceClickListener(this);
+    @Override
+    public void onResume() {
+        super.onResume();
+        getPreferenceManager().getSharedPreferences()
+            .registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getPreferenceManager().getSharedPreferences()
+            .unregisterOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -32,9 +49,36 @@ public class PreferenceActivity extends RoboPreferenceActivity
         return true;
     }
 
+    // TODO changing sync state moved to seperate class
+    // TODO handling preference change generalized
+    // TODO handling additional fields: host, credentials, ca, cert
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences settings, String key) {
+        if (key.equals(mPrefPrivateKey.getKey())) {
+            String value = settings.getString(key, "");
+            if (!"".equals(value)) {
+                mPrefPrivateKey.setSummary(getString(R.string.set));
+            }
+        }
+        else if (key.equals(mPrefSyncState.getKey())) {
+            String value = settings.getString(key, null);
+            mPrefSyncState.setSummary(value);
+        }
+
+        if (!"".equals(settings.getString(mPrefPrivateKey.getKey(), ""))) {
+            String[] states = getResources().getStringArray(R.array.taskwarrior_sync_states);
+            settings.edit()
+                .putString(mPrefSyncState.getKey(), states[1])
+                .commit();
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int responseCode, Intent result) {
         super.onActivityResult(requestCode, responseCode, result);
+        getPreferenceManager().getSharedPreferences()
+            .registerOnSharedPreferenceChangeListener(this);
+
         if (responseCode == RESULT_OK) {
             getPreferenceManager().getSharedPreferences()
                 .edit()
@@ -42,6 +86,9 @@ public class PreferenceActivity extends RoboPreferenceActivity
                 .commit();
         }
         mCurrentKey = null;
+
+        getPreferenceManager().getSharedPreferences()
+            .unregisterOnSharedPreferenceChangeListener(this);
     }
 
 }

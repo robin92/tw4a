@@ -1,11 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
-        android:title="@string/pref_synchronization"
+        android:title="@string/synchronization"
         >
-        <Preference
-            android:key="@string/pref_key_taskwarrior_private_key"
-            android:title="@string/pref_taskwarrior_private_key"
+        <ListPreference
+            android:key="pref_taskwarrior_sync_state"
+            android:title="@string/status"
+            android:entries="@array/taskwarrior_sync_states"
+            android:entryValues="@array/taskwarrior_sync_states"
+            android:defaultValue="Off"
+            android:enabled="false"
+            />
+        <pl.rbolanowski.tw4a.preference.ContentPreference
+            android:key="pref_taskwarrior_private_key"
+            android:title="@string/private_key"
+            android:summary="@string/none"
+            />
+        <pl.rbolanowski.tw4a.preference.ContentPreference
+            android:key="pref_taskwarrior_ca"
+            android:title="@string/certificate_request"
+            android:summary="@string/none"
+            />
+        <pl.rbolanowski.tw4a.preference.ContentPreference
+            android:key="pref_taskwarrior_cert"
+            android:title="@string/certificate"
+            android:summary="@string/none"
             />
     </PreferenceCategory>
 </PreferenceScreen>
