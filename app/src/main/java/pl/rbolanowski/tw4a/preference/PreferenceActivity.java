@@ -24,6 +24,9 @@ public class PreferenceActivity extends RoboPreferenceActivity
         super.onCreate(savedState);
         addPreferencesFromResource(R.xml.preferences);
         configurePreferenceClickListener(getPreferenceScreen());
+        mPrefSyncState.setSummary(
+            getPreferenceManager().getSharedPreferences()
+                .getString(mPrefSyncState.getKey(), null));
     }
 
     private void configurePreferenceClickListener(PreferenceGroup preferences) {
