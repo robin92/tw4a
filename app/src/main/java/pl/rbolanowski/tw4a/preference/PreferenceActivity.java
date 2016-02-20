@@ -3,6 +3,7 @@ package pl.rbolanowski.tw4a.preference;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.Preference;
+import android.preference.PreferenceGroup;
 
 import roboguice.activity.RoboPreferenceActivity;
 import roboguice.inject.InjectPreference;
@@ -22,7 +23,40 @@ public class PreferenceActivity extends RoboPreferenceActivity
     public void onCreate(android.os.Bundle savedState) {
         super.onCreate(savedState);
         addPreferencesFromResource(R.xml.preferences);
-        mPrefPrivateKey.setOnPreferenceClickListener(this);
+        configurePreferenceClickListener(getPreferenceScreen());
+    }
+
+    private void configurePreferenceClickListener(PreferenceGroup preferences) {
+        for (int i = 0; i < preferences.getPreferenceCount(); i++) {
+            Preference preference = preferences.getPreference(i);
+            tryContentPreference(preference);
+            tryPreferenceGroup(preference);
+        }
+    }
+
+    private void tryContentPreference(Preference input) {
+        try {
+            ContentPreference preference = (ContentPreference) input;
+            preference.setOnPreferenceClickListener(this);
+        }
+        catch (ClassCastException e) {
+            // pass
+        }
+    }
+
+    private void tryPreferenceGroup(Preference input) {
+        PreferenceGroup group = null;
+        try {
+            group = (PreferenceGroup) input;
+        }
+        catch (ClassCastException e) {
+            // pass
+        }
+        finally {
+            if (group != null) {
+                configurePreferenceClickListener(group);
+            }
+        }
     }
 
     @Override

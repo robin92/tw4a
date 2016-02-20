@@ -11,6 +11,19 @@
             android:defaultValue="Off"
             android:enabled="false"
             />
+        <EditTextPreference
+            android:key="pref_taskwarrior_host"
+            android:title="@string/host_address"
+            android:summary="@string/host_address_summary"
+            android:hint="@string/addr_port"
+            android:defaultValue=""
+            />
+        <EditTextPreference
+            android:key="pref_taskwarrior_credentials"
+            android:title="@string/credentials"
+            android:summary="@string/credentials_summary"
+            android:defaultValue=""
+            />
         <pl.rbolanowski.tw4a.preference.ContentPreference
             android:key="pref_taskwarrior_private_key"
             android:title="@string/private_key"

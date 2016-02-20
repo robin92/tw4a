@@ -18,6 +18,9 @@
     <string name="private_key">Private key</string>
     <string name="certificate_request">Certificate request</string>
     <string name="certificate">Certificate</string>
+    <string name="host_address">Host address</string>
+    <string name="addr_port">address:port</string>
+    <string name="credentials">Credentials</string>
 
     <!-- application specific -->
     <string name="configure_error_title">Could not configure application!</string>
@@ -26,6 +29,8 @@
     <string name="edit_task_dialog_header">Edit Task</string>
     <string name="list_empty">No pending tasks</string>
     <string name="export_internal_data">Export internal data</string>
+    <string name="host_address_summary">Address of Taskserver with a port number</string>
+    <string name="credentials_summary">Server specyfic information identyfing the user</string>
 
     <string-array name="taskwarrior_sync_states">
         <item>Off</item>
